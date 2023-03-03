@@ -1,0 +1,16 @@
+{
+  "name": "synapse-test",
+  "version": "1.0.0",
+  "description": "synapse test",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "y-websocket": "^1.4.5",
+    "yjs": "^13.5.47"
+  }
+}
