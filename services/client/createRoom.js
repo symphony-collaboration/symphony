@@ -1,5 +1,5 @@
-import LiveList from './LiveList.js';
-import LiveMap from './LiveMap.js';
+import SyncedList from './SyncedList.js';
+import SyncedMap from './SyncedMap.js';
 
 const createRoom = (wsProvider, ydoc) => {
   return {
@@ -7,7 +7,7 @@ const createRoom = (wsProvider, ydoc) => {
 
     // https://liveblocks.io/docs/api-reference/liveblocks-client#Room.subscribe(storageItem)
     subscribe: (subscribedItem, callback, isDeepObject) => {
-      if (subscribedItem instanceof LiveList || subscribedItem instanceof LiveMap) {
+      if (subscribedItem instanceof SyncedList || subscribedItem instanceof SyncedMap) {
         subscribedItem.values.observe(callback);
       } else if (subscribedItem === 'others') {
         wsProvider.awareness.on('change', callback);
@@ -99,11 +99,11 @@ const createRoom = (wsProvider, ydoc) => {
     },
 
     newArray: (name) => {
-      return new LiveList(ydoc, name);
+      return new SyncedList(ydoc, name);
     },
 
     newMap: (name) => {
-      return new LiveMap(ydoc, name);
+      return new SyncedMap(ydoc, name);
     },
 
     transact: (callback, origin) => {
