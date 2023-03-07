@@ -14,6 +14,11 @@ const createRoom = (wsProvider, ydoc) => {
       }      
     },
 
+    // maybe use this to call yjs unobserve methods
+    unsubscribe: (subscribedItem, callback) => {
+
+    },
+
     // Gets the presence of the current user.
     getPresence: () => {
       
