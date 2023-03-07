@@ -6,6 +6,7 @@ import createRoom from './createRoom';
 
 export const createClient = (websocketUrl) => {
   let currentRoomId = null;
+  let wsProvider = null;
 
   return {
     // Enters a room and returns it.
@@ -18,13 +19,15 @@ export const createClient = (websocketUrl) => {
       }
 
       // possible to set up initial presence and initial storage here?
-      const wsProvider = new WebsocketProvider(websocketUrl, roomId, ydoc, wsProviderOptions);
+      wsProvider = new WebsocketProvider(websocketUrl, roomId, ydoc, wsProviderOptions);
       return createRoom(wsProvider, ydoc);
     },
 
     // Leaves a room.
     leave: () => {
-      
+      if (wsProvider) {
+        wsProvider.disconnect();
+      }
     },
 
     // get a room by id. returns null if client.enter has not been called previously.

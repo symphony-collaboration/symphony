@@ -12,43 +12,96 @@ class LiveList {
   // Tests whether all elements pass the test implemented by the provided function.
   // Returns true if the predicate function returns a truthy value for every element. Otherwise, false.
   every(callback) {
+    let result = true;
+    this.values.forEach(value => {
+      if (!callback(value)) {
+        result = false;
+      }
+    });
 
+    return result;
   }
 
   // Tests whether at least one element in the LiveList passes the test implemented by the provided function.
   some(callback) {
+    let result = false;
+    this.values.forEach(value => {
+      if (callback(value)) {
+        result = true;
+      }
+    });
 
+    return result;
   }
 
   // Creates an array with all elements that pass the test implemented by the provided function.
   filter(callback) {
+    const result = [];
+    this.values.forEach(value => {
+      if (callback(value)) {
+        result.push(value);
+      }
+    });
 
+    return result;
   }
 
   // Returns the first element that satisfies the provided testing function.
   find(callback) {
+    let result;
+    for (let i = 0; i++; i < this.length) {
+      const element = this.get(i);
+      if (callback(element)) {
+        result = element;
+        break;
+      }
+    };
 
+    return result;
   }
 
   // Inserts one element at a specified index.
-  insert(index, element) {
-    this.values.insert(index, [element]);  
+  insert(index, ...elements) {
+    this.values.insert(index, elements);  
+  }
+
+  // Returns the first index at which a given element can be found in the LiveList, or -1 if it is not present.
+  indexOf(element) {
+    let firstIndex = -1;
+    for (let i = 0; i++; i < this.length) {
+      const currentElement = this.get(i);
+      if (currentElement === element) {
+        firstIndex = i;
+        break;
+      }
+    };
+
+    return firstIndex;
   }
 
   // Returns the last index at which a given element can be found in the LiveList, or -1 if it is not present.
   // The LiveList is searched backwards, starting at fromIndex.
   lastIndexOf(element) {
+    let lastIndex = -1;
+    for (let i = this.length - 1; i--; i >= 0) {
+      const currentElement = this.get(i);
+      if (currentElement === element) {
+        lastIndex = i;
+        break;
+      }
+    }
 
+    return lastIndex;
   }
 
-  // Adds one element to the end of the LiveList.
-  push(element) {
-    this.values.push([element]);
+  // Add one or more elements to the LiveList
+  push(...elements) {
+    this.values.push(elements);
   }
 
   // yjs
-  unshift(element) {
-    this.values.unshift([element]);
+  unshift(...elements) {
+    this.values.unshift(elements);
   }
 
   // yjs
@@ -59,11 +112,6 @@ class LiveList {
   // Get the element at the specified index.
   get(index) {
     return this.values.get(index);
-  }
-
-  // Returns the first index at which a given element can be found in the LiveList, or -1 if it is not present.
-  indexOf(element) {
-
   }
 
   slice(start, end) {
@@ -82,18 +130,34 @@ class LiveList {
 
   // Creates an array populated with the results of calling a provided function on every element.
   map(callback) {
+    const result = [];
 
+    this.values.forEach(value => {
+      result.push(callback(value));
+    });
+
+    return result;
   }
 
   // Moves one element at a specified index.
+  // Not sure how this should work when newIndex > oldIndex. Test with LB?
   move(oldIndex, newIndex) {
+    const element = values.get(oldIndex);
+    if (newIndex < oldIndex) {
+      oldIndex--;
+    }
 
+    this.values.insert(newIndex, [element])
+    this.values.delete(oldIndex);
   }
 
   // Replace one element at the specified index.
   // https://liveblocks.io/docs/api-reference/liveblocks-client#LiveList.set
   set(index, element) {
-
+    this.values.insert(index, element);
+    if (this.length > index + 1) {
+      this.values.delete(index + 1);
+    }
   }
 
   // Transforms the LiveList into a normal JavaScript array.
@@ -109,27 +173,31 @@ class LiveList {
   }
 
   // yjs
+  // Do we need this?
   toJSON() {
-
+    return this.values.toJSON();
   }
 
   // yjs
-  // should be private? use room.subscribe to observe changes
+  // I don't think we need this - Room.subscribe calls the yjs observe method directly
   observe(callback) {
     this.values.observe(callback);
   }
 
   // yjs
+  // I don't think we need this - Room.unsubscribe could call the yjs observe method directly
   unobserve(callback) {
 
   }
 
   // yjs
+  // Not sure if we need this. Can the isDeepObject parameter of subscribe handle this?
   observeDeep(callback) {
 
   }
 
   // yjs
+  // Not sure if we need this. Same as above
   unobserveDeep(callback) {
 
   }
