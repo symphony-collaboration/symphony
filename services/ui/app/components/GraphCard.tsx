@@ -1,37 +1,62 @@
-export default function GraphCard() {
-  return (
-    <a
-      href="#"
-      className="group flex flex-col justify-between rounded-sm bg-white p-4 shadow-xl transition-shadow hover:shadow-lg sm:p-6 lg:p-8"
-    >
-      <div>
-        <h3 className="text-3xl font-bold text-indigo-600 sm:text-5xl">100+</h3>
+import { Line } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  LineElement,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+} from "chart.js";
 
-        <div className="mt-4 border-t-2 border-gray-100 pt-4">
-          <p className="text-sm font-medium uppercase text-gray-500">
-            New employees
-          </p>
+ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement);
+
+interface GraphCardProps {
+  metricName: string;
+  data?: any;
+}
+
+export default function GraphCard({ metricName }: GraphCardProps) {
+  const getCurrentTime = (): string => {
+    const now = new Date();
+    const hours = now.getHours().toString().padStart(2, "0"); // Get the hours and pad with leading zero if needed
+    const minutes = now.getMinutes().toString().padStart(2, "0"); // Get the minutes and pad with leading zero if needed
+    const time = `${hours}:${minutes}`; // Combine the hours and minutes into a string in the 24-hour format
+    return time;
+  };
+
+  const data = {
+    labels: [`Yesterday ${getCurrentTime()}`].concat(Array(5).fill('')).concat([`Today ${getCurrentTime()}`]),
+    datasets: [
+      {
+        labels: "Sales of the week",
+        data: [3, 6, 5, 2, 7, 3, 4],
+        backgroundColor: "aqua",
+        tension: 0.4,
+        borderColor: "#4f46e5",
+      },
+    ],
+  };
+
+  const options = {
+    scales: {
+      y: {
+        display: false,
+      },
+    },
+  };
+
+
+
+  return (
+    <div className="flex-1 group flex flex-col justify-between rounded-sm bg-white p-4 shadow-xl transition-shadow sm:p-6 lg:p-8">
+      <div>
+        <h3 className="font-medium text-gray-900">{metricName}</h3>
+        <div className="border-t-2 border-gray-100 pt-1">
+          <p className="mt-1 text-sm text-gray-700">Localhost</p>
         </div>
       </div>
-
-      <div className="mt-8 inline-flex items-center gap-2 text-indigo-600 sm:mt-12 lg:mt-16">
-        <p className="font-medium sm:text-lg">How we did it</p>
-
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-6 w-6 transition group-hover:translate-x-3"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M17 8l4 4m0 0l-4 4m4-4H3"
-          />
-        </svg>
+      <div>
+        <Line data={data} options={options}></Line>
       </div>
-    </a>
+    </div>
   );
 }

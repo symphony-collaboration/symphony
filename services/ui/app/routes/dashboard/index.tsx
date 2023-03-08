@@ -2,6 +2,7 @@ import InfoCard from "~/components/InfoCard";
 import Container from "~/components/Container";
 import Divider from "~/components/Divider";
 import type { InfoCardInterface } from "~/components/types";
+import GraphCard from "~/components/GraphCard";
 
 const Dashboard = () => {
   const infoCards: InfoCardInterface[] = [
@@ -56,6 +57,13 @@ const Dashboard = () => {
         <strong className="block font-medium text-gray-900 mb-5">
           Overview
         </strong>
+        <div className="flex justify-between gap-10 mb-10">
+          {[1, 2, 3].map((num) => {
+            return (
+              <GraphCard key={num} metricName="Daily Active Users" data="1" />
+            );
+          })}
+        </div>
       </Container>
     </div>
   );

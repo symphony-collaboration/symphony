@@ -1,11 +1,32 @@
+import { Link, useLocation } from "@remix-run/react";
+
 export default function Sidebar() {
+  const { pathname } = useLocation();
+
+  // tODO: sort link highlighting, rooms, and refactor sidebar into map objects
+
+  const getPath = (pathname: string) => {
+    while (pathname.endsWith("/")) {
+      pathname = pathname.slice(0, -1);
+    }
+
+    return pathname.split("/").at(-1);
+  };
+
+  const currentPath = getPath(pathname);
+  const linkClass =
+    "flex items-center gap-2 rounded-lg px-4 py-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700";
+  const selectedLinkClass = `${linkClass}  bg-gray-100 text-gray-700`;
+
   return (
     <div className="flex h-screen flex-col justify-between border-r bg-white max-w-xs">
       <div className="px-4 py-6">
         <nav aria-label="Main Nav" className="mt-6 flex flex-col space-y-1">
-          <a
-            href="#"
-            className="flex items-center gap-2 rounded-lg px-4 py-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+          <Link
+            to="/dashboard"
+            className={
+              currentPath === "dashboard" ? selectedLinkClass : linkClass
+            }
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -23,11 +44,11 @@ export default function Sidebar() {
             </svg>
 
             <span className="text-sm font-medium">Overview</span>
-          </a>
+          </Link>
 
-          <a
-            href="#"
-            className="flex items-center gap-2 rounded-lg px-4 py-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+          <Link
+            to="/dashboard/rooms"
+            className={currentPath === "rooms" ? selectedLinkClass : linkClass}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -45,10 +66,13 @@ export default function Sidebar() {
             </svg>
 
             <span className="text-sm font-medium">Rooms</span>
-          </a>
-          <a
-            href="#"
-            className="flex items-center gap-2 rounded-lg bg-gray-100 px-4 py-2 text-gray-700"
+          </Link>
+
+          <Link
+            to="/dashboard/settings"
+            className={
+              currentPath === "settings" ? selectedLinkClass : linkClass
+            }
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -71,7 +95,7 @@ export default function Sidebar() {
             </svg>
 
             <span className="text-sm font-medium">Settings</span>
-          </a>
+          </Link>
         </nav>
       </div>
     </div>
