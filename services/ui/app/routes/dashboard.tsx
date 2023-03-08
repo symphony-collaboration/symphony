@@ -1,10 +1,17 @@
-import Navigation from "~/components/Navigation"
+import Navigation from "~/components/Navigation";
+import Sidebar from "~/components/Sidebar";
+import { Outlet } from "@remix-run/react";
 
-const Dashboard = () => {
+export default function DashboardLayout() {
   return (
-    <Navigation />
-  )
-
+    <>
+      <Navigation />
+      <div className="flex flex-row">
+        <div className="basis-1/6">
+          <Sidebar />
+        </div>
+        <Outlet />
+      </div>
+    </>
+  );
 }
-
-export default Dashboard
