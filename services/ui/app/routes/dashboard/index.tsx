@@ -29,43 +29,41 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="w-full">
-      <Container>
-        <header className="mb-8">
+        <>
+          <header className="mb-8">
+            <strong className="block font-medium text-gray-900 mb-5">
+              {" "}
+              Welcome to Symphony{" "}
+            </strong>
+            <p className="mt-1 text-sm text-gray-700">
+              Follow the steps below or browse our developer documentation to get
+              started.
+            </p>
+          </header>
+          <div className="flex justify-between gap-10 mb-10">
+            {infoCards.map((card) => {
+              return (
+                <InfoCard
+                  key={card.id}
+                  title={card.title}
+                  description={card.description}
+                  link={card.link}
+                />
+              );
+            })}
+          </div>
+          <Divider />
           <strong className="block font-medium text-gray-900 mb-5">
-            {" "}
-            Welcome to Symphony{" "}
+            Overview
           </strong>
-          <p className="mt-1 text-sm text-gray-700">
-            Follow the steps below or browse our developer documentation to get
-            started.
-          </p>
-        </header>
-        <div className="flex justify-between gap-10 mb-10">
-          {infoCards.map((card) => {
-            return (
-              <InfoCard
-                key={card.id}
-                title={card.title}
-                description={card.description}
-                link={card.link}
-              />
-            );
-          })}
-        </div>
-        <Divider />
-        <strong className="block font-medium text-gray-900 mb-5">
-          Overview
-        </strong>
-        <div className="flex justify-between gap-10 mb-10">
-          {[1, 2, 3].map((num) => {
-            return (
-              <GraphCard key={num} metricName="Daily Active Users" data="1" />
-            );
-          })}
-        </div>
-      </Container>
-    </div>
+          <div className="flex justify-between gap-10 mb-10">
+            {[1, 2, 3].map((num) => {
+              return (
+                <GraphCard key={num} metricName="Daily Active Users" data="1" />
+              );
+            })}
+          </div>
+        </>
   );
 };
 
