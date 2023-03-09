@@ -3,8 +3,6 @@ import { Link, useLocation } from "@remix-run/react";
 export default function Sidebar() {
   const { pathname } = useLocation();
 
-  // tODO: sort link highlighting, rooms, and refactor sidebar into map objects
-
   const getPath = (pathname: string) => {
     while (pathname.endsWith("/")) {
       pathname = pathname.slice(0, -1);

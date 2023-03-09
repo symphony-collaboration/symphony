@@ -6,6 +6,7 @@ import {
   LinearScale,
   PointElement,
 } from "chart.js";
+import { getCurrent24HrTime } from "../shared/utils";
 
 ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement);
 
@@ -15,16 +16,10 @@ interface GraphCardProps {
 }
 
 export default function GraphCard({ metricName }: GraphCardProps) {
-  const getCurrentTime = (): string => {
-    const now = new Date();
-    const hours = now.getHours().toString().padStart(2, "0"); // Get the hours and pad with leading zero if needed
-    const minutes = now.getMinutes().toString().padStart(2, "0"); // Get the minutes and pad with leading zero if needed
-    const time = `${hours}:${minutes}`; // Combine the hours and minutes into a string in the 24-hour format
-    return time;
-  };
-
   const data = {
-    labels: [`Yesterday ${getCurrentTime()}`].concat(Array(5).fill('')).concat([`Today ${getCurrentTime()}`]),
+    labels: [`Yesterday ${getCurrent24HrTime()}`]
+      .concat(Array(5).fill(""))
+      .concat([`Today ${getCurrent24HrTime()}`]),
     datasets: [
       {
         labels: "Sales of the week",
@@ -43,8 +38,6 @@ export default function GraphCard({ metricName }: GraphCardProps) {
       },
     },
   };
-
-
 
   return (
     <div className="flex-1 group flex flex-col justify-between rounded-sm bg-white p-4 shadow-xl transition-shadow sm:p-6 lg:p-8">

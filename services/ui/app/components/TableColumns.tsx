@@ -10,13 +10,13 @@ const columns = [
     header: () => "Room Name",
   }),
 
-  columnHelper.accessor((row) => row.roomName, {
+  columnHelper.accessor((row) => row.lastConnectedAt, {
     id: "lastConnectedAt",
     cell: (info) => info.getValue(),
     header: () => "Last Connected At",
   }),
 
-  columnHelper.accessor((row) => row.roomName, {
+  columnHelper.accessor((row) => row.storageSize, {
     id: "storageSize",
     cell: (info) => info.getValue(),
     header: () => "Storage Size",
