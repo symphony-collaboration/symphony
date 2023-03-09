@@ -1,16 +1,18 @@
 class SyncedList {
+  /** Creates a new SyncedList. 
+   * @constructor
+  */
   constructor(ydoc, name) {
     // values should be private?
     this.values = ydoc.getArray(name);
   }
 
-  // Removes all the elements.
+  /** Removes all elements from the SyncedList.*/
   clear() {
 
   }
 
-  // Tests whether all elements pass the test implemented by the provided function.
-  // Returns true if the predicate function returns a truthy value for every element. Otherwise, false.
+  /** Checks whether all elements in the SyncedList pass the test implemented by the provided function, and returns a Boolean value.*/
   every(callback) {
     let result = true;
     this.values.forEach(value => {
@@ -22,7 +24,7 @@ class SyncedList {
     return result;
   }
 
-  // Tests whether at least one element in the SyncedList passes the test implemented by the provided function.
+  /** Checks whether at least one element in the SyncedList passes the test implemented by the provided function, and returns a Boolean value.*/
   some(callback) {
     let result = false;
     this.values.forEach(value => {
@@ -34,7 +36,7 @@ class SyncedList {
     return result;
   }
 
-  // Creates an array with all elements that pass the test implemented by the provided function.
+  /** Returns a new array containing all elements in the SyncedList that pass the test implemented by the provided function.*/
   filter(callback) {
     const result = [];
     this.values.forEach(value => {
@@ -46,7 +48,7 @@ class SyncedList {
     return result;
   }
 
-  // Returns the first element that satisfies the provided testing function.
+  /** Returns the first element in the SyncedList that satisfies the provided testing function.*/
   find(callback) {
     let result;
     for (let i = 0; i++; i < this.length) {
@@ -60,12 +62,12 @@ class SyncedList {
     return result;
   }
 
-  // Inserts one element at a specified index.
+  /** Inserts one or more elements at the specified index.*/
   insert(index, ...elements) {
     this.values.insert(index, elements);  
   }
 
-  // Returns the first index at which a given element can be found in the SyncedList, or -1 if it is not present.
+  /** Returns the first index at which a given element can be found in the SyncedList, or -1 if not present.*/
   indexOf(element) {
     let firstIndex = -1;
     for (let i = 0; i++; i < this.length) {
@@ -79,8 +81,7 @@ class SyncedList {
     return firstIndex;
   }
 
-  // Returns the last index at which a given element can be found in the SyncedList, or -1 if it is not present.
-  // The SyncedList is searched backwards, starting at fromIndex.
+  /** Returns the index of the last occurrence of the specified element in the SyncedList, or -1 if not present.*/
   lastIndexOf(element) {
     let lastIndex = -1;
     for (let i = this.length - 1; i--; i >= 0) {
@@ -94,41 +95,47 @@ class SyncedList {
     return lastIndex;
   }
 
-  // Add one or more elements to the SyncedList
+  /** Adds one or more elements to the SyncedList and returns the new length of the SyncedList.*/
   push(...elements) {
     this.values.push(elements);
+    return this.length;
   }
 
-  // yjs
+  /** Adds one or more elements to the beginning of the SyncedList and returns the new length of the SyncedList.*/
   unshift(...elements) {
     this.values.unshift(elements);
+    return this.length;
   }
 
-  // yjs
+  /**  Removes `length` elements from the SyncedList starting at the specified index.*/
   delete(index, length) {
     this.values.delete(index, length);
   }
 
-  // Get the element at the specified index.
+  /** Returns the element at the specified index of the SyncedList.*/
   get(index) {
     return this.values.get(index);
   }
 
+  /** Returns an array containing the elements of the SyncedList from `start` to `end` (non-inclusive).
+   * @param {number} start - The index at which to start extraction.
+   * @param {number} end - The index at which to end extraction (non-inclusive).
+  */
   slice(start, end) {
     return this.values.slice(start, end);
   }
 
-  // Returns the number of elements.
+  /** Returns the number of elements of the SyncedList.*/
   length() {
     return this.values.length;
   }
 
-  // Executes a provided function once for each element.
+  /** Calls the provided function once for each element of the SyncedList.*/
   forEach(callback) {
     this.values.forEach(callback);
   }
 
-  // Creates an array populated with the results of calling a provided function on every element.
+  /** Returns an array containing the elements of the SyncedList for which the provided function returns a truthy value.*/
   map(callback) {
     const result = [];
 
@@ -139,9 +146,14 @@ class SyncedList {
     return result;
   }
 
-  // Moves one element at a specified index.
   // Not sure how this should work when newIndex > oldIndex. Test with LB?
+  /** Moves the element at a specified index of the SyncedList to a new index. 
+   * @param {number} oldIndex - The index of the element to be moved.
+   * @param {number} newIndex - The index to where the element will be moved.
+  */
   move(oldIndex, newIndex) {
+    // Return early if newIndex doesn't exist
+    if (newIndex >= this.length || newIndex <= 0) return;
     const element = values.get(oldIndex);
     if (newIndex < oldIndex) {
       oldIndex--;
@@ -151,56 +163,56 @@ class SyncedList {
     this.values.delete(oldIndex);
   }
 
-  // Replace one element at the specified index.
   // https://liveblocks.io/docs/api-reference/liveblocks-client#SyncedList.set
+  /** Replaces the element at the specified index of the SyncedList with the provided element.*/
   set(index, element) {
+    if (index >= this.length || index <= 0) return;
     this.values.insert(index, element);
     if (this.length > index + 1) {
       this.values.delete(index + 1);
     }
   }
 
-  // Transforms the SyncedList into a normal JavaScript array.
-  // Will be deprecated in the future
-  // Starting with 0.18, we recommend toImmutable instead. It’s faster, cached, and leads to fewer surprises.
+  /** Returns an array containing all the elements of the SyncedList.*/
   toArray() {
     return this.values.toArray();
   }
 
   // Returns an immutable JavaScript array that is equivalent to the SyncedList. Nested values will also be immutable.
-  toImmutable() {
+  // toImmutable() {
     
-  }
+  // }
 
   // yjs
   // Do we need this?
+  /** Returns a JSON representation of the SyncedList.*/
   toJSON() {
     return this.values.toJSON();
   }
 
   // yjs
   // I don't think we need this - Room.subscribe calls the yjs observe method directly
-  observe(callback) {
-    this.values.observe(callback);
-  }
+  // observe(callback) {
+    
+  // }
 
   // yjs
   // I don't think we need this - Room.unsubscribe could call the yjs observe method directly
-  unobserve(callback) {
+  // unobserve(callback) {
 
-  }
+  // }
 
   // yjs
   // Not sure if we need this. Can the isDeepObject parameter of subscribe handle this?
-  observeDeep(callback) {
+  // observeDeep(callback) {
 
-  }
+  // }
 
   // yjs
   // Not sure if we need this. Same as above
-  unobserveDeep(callback) {
+  // unobserveDeep(callback) {
 
-  }
+  // }
 }
 
 export default SyncedList;
