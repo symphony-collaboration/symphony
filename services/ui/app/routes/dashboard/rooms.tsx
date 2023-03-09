@@ -2,28 +2,18 @@ import { Table } from "~/components/Table";
 import type { Room } from "~/components/types";
 import columns from "~/components/TableColumns";
 import { useLoaderData } from "@remix-run/react";
-import { fetch, json } from "@remix-run/node";
-import { pluralize, getCurrent24HrTime } from "~/shared/utils";
+import { fetch } from "@remix-run/node";
+import { pluralize } from "~/shared/utils";
 
 export const loader = async () => {
-  // uncomment this after URL has been replaced with the correct one
-  // const response = await fetch("http://symphony.com/rooms")
-  // const { rooms } = await response.json()
-  // return rooms
+  const response = await fetch("https://imykolas.com/api/rooms")
+  const rooms = await response.json()
 
-  const dummyData: Room[] = [
-    {
-      roomName: "Test Room",
-      lastConnectedAt: `${getCurrent24HrTime()}`,
-      storageSize: 100,
-    },
-  ];
-
-  return dummyData;
+  return rooms;
 };
 
 export default function Rooms() {
-  const rooms = useLoaderData<typeof loader>();
+  const rooms = useLoaderData<Room[]>();
 
   return (
     <>

@@ -7,12 +7,16 @@ export interface InfoCardInterface {
 
 export interface GraphCardInterface {
   id: number;
-  metricName: string,
-  data: any
+  metricName: string;
+  data: any;
 }
 
 export type Room = {
-  roomName: string;
-  lastConnectedAt: string;
-  storageSize: number;
+  id: number;
+  createdAt: string;
+  updatedAt: string;
+  name: string;
+  bytes: number;
+  lastConnectedAt?: string;
+  active: boolean;
 };

@@ -4,7 +4,7 @@ import type { Room } from "./types";
 const columnHelper = createColumnHelper<Room>();
 
 const columns = [
-  columnHelper.accessor((row) => row.roomName, {
+  columnHelper.accessor((row) => row.name, {
     id: "roomName",
     cell: (info) => info.getValue(),
     header: () => "Room Name",
@@ -12,14 +12,14 @@ const columns = [
 
   columnHelper.accessor((row) => row.lastConnectedAt, {
     id: "lastConnectedAt",
-    cell: (info) => info.getValue(),
+    cell: (info) => info.getValue() || "2020",
     header: () => "Last Connected At",
   }),
 
-  columnHelper.accessor((row) => row.storageSize, {
+  columnHelper.accessor((row) => row.bytes, {
     id: "storageSize",
     cell: (info) => info.getValue(),
-    header: () => "Storage Size",
+    header: () => "Storage Size (Bytes)",
   }),
 
   columnHelper.display({
