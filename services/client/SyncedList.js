@@ -1,21 +1,27 @@
+import * as Y from 'yjs';
+
+/**
+ * @classdesc The SyncedList is a shared type that is similar to the JavaScript Array.
+ * @hideconstructor
+ */
+
 class SyncedList {
-  /** Creates a new SyncedList. 
-   * @constructor
-  */
+  // #values is private
+  #values;
+
   constructor(ydoc, name) {
-    // values should be private?
-    this.values = ydoc.getArray(name);
+    this.#values = ydoc.getArray(name);
   }
 
   /** Removes all elements from the SyncedList.*/
   clear() {
-
+    this.#values.delete(0, this.length);
   }
 
   /** Checks whether all elements in the SyncedList pass the test implemented by the provided function, and returns a Boolean value.*/
   every(callback) {
     let result = true;
-    this.values.forEach(value => {
+    this.#values.forEach(value => {
       if (!callback(value)) {
         result = false;
       }
@@ -27,7 +33,7 @@ class SyncedList {
   /** Checks whether at least one element in the SyncedList passes the test implemented by the provided function, and returns a Boolean value.*/
   some(callback) {
     let result = false;
-    this.values.forEach(value => {
+    this.#values.forEach(value => {
       if (callback(value)) {
         result = true;
       }
@@ -39,7 +45,7 @@ class SyncedList {
   /** Returns a new array containing all elements in the SyncedList that pass the test implemented by the provided function.*/
   filter(callback) {
     const result = [];
-    this.values.forEach(value => {
+    this.#values.forEach(value => {
       if (callback(value)) {
         result.push(value);
       }
@@ -64,7 +70,7 @@ class SyncedList {
 
   /** Inserts one or more elements at the specified index.*/
   insert(index, ...elements) {
-    this.values.insert(index, elements);  
+    this.#values.insert(index, elements);  
   }
 
   /** Returns the first index at which a given element can be found in the SyncedList, or -1 if not present.*/
@@ -97,49 +103,49 @@ class SyncedList {
 
   /** Adds one or more elements to the SyncedList and returns the new length of the SyncedList.*/
   push(...elements) {
-    this.values.push(elements);
+    this.#values.push(elements);
     return this.length;
   }
 
   /** Adds one or more elements to the beginning of the SyncedList and returns the new length of the SyncedList.*/
   unshift(...elements) {
-    this.values.unshift(elements);
+    this.#values.unshift(elements);
     return this.length;
   }
 
-  /**  Removes `length` elements from the SyncedList starting at the specified index.*/
+  /**  Removes <tt>length</tt> elements from the SyncedList starting at the specified index.*/
   delete(index, length) {
-    this.values.delete(index, length);
+    this.#values.delete(index, length);
   }
 
   /** Returns the element at the specified index of the SyncedList.*/
   get(index) {
-    return this.values.get(index);
+    return this.#values.get(index);
   }
 
-  /** Returns an array containing the elements of the SyncedList from `start` to `end` (non-inclusive).
+  /** Returns an array containing the elements of the SyncedList from <tt>start</tt> to <tt>end</tt> (non-inclusive).
    * @param {number} start - The index at which to start extraction.
    * @param {number} end - The index at which to end extraction (non-inclusive).
   */
   slice(start, end) {
-    return this.values.slice(start, end);
+    return this.#values.slice(start, end);
   }
 
   /** Returns the number of elements of the SyncedList.*/
   length() {
-    return this.values.length;
+    return this.#values.length;
   }
 
   /** Calls the provided function once for each element of the SyncedList.*/
   forEach(callback) {
-    this.values.forEach(callback);
+    this.#values.forEach(callback);
   }
 
   /** Returns an array containing the elements of the SyncedList for which the provided function returns a truthy value.*/
   map(callback) {
     const result = [];
 
-    this.values.forEach(value => {
+    this.#values.forEach(value => {
       result.push(callback(value));
     });
 
@@ -154,28 +160,36 @@ class SyncedList {
   move(oldIndex, newIndex) {
     // Return early if newIndex doesn't exist
     if (newIndex >= this.length || newIndex <= 0) return;
-    const element = values.get(oldIndex);
+    const element = this.#values.get(oldIndex);
     if (newIndex < oldIndex) {
       oldIndex--;
     }
 
-    this.values.insert(newIndex, [element])
-    this.values.delete(oldIndex);
+    this.#values.insert(newIndex, [element])
+    this.#values.delete(oldIndex);
   }
 
   // https://liveblocks.io/docs/api-reference/liveblocks-client#SyncedList.set
   /** Replaces the element at the specified index of the SyncedList with the provided element.*/
   set(index, element) {
     if (index >= this.length || index <= 0) return;
-    this.values.insert(index, element);
+    this.#values.insert(index, element);
     if (this.length > index + 1) {
-      this.values.delete(index + 1);
+      this.#values.delete(index + 1);
     }
+  }
+
+  values() {
+    return this.#values.values();
   }
 
   /** Returns an array containing all the elements of the SyncedList.*/
   toArray() {
-    return this.values.toArray();
+    return this.#values.toArray();
+  }
+
+  newHistory() {
+    return new Y.UndoManager(this.#values);
   }
 
   // Returns an immutable JavaScript array that is equivalent to the SyncedList. Nested values will also be immutable.
@@ -187,7 +201,16 @@ class SyncedList {
   // Do we need this?
   /** Returns a JSON representation of the SyncedList.*/
   toJSON() {
-    return this.values.toJSON();
+    return this.#values.toJSON();
+  }
+
+  
+  observe(callback) {
+    this.#values.observe(callback);
+  }
+
+  unobserve(callback) {
+    this.#values.unobserve(callback);
   }
 
   // yjs
