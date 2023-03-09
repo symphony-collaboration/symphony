@@ -20,7 +20,7 @@ export const createClient = (websocketUrl) => {
 
       // possible to set up initial presence and initial storage here?
       wsProvider = new WebsocketProvider(websocketUrl, roomId, ydoc, wsProviderOptions);
-      return createRoom(wsProvider, ydoc);
+      return createRoom(wsProvider, ydoc, history);
     },
 
     // Leaves a room.
@@ -34,6 +34,9 @@ export const createClient = (websocketUrl) => {
     getRoom: (roomId) => {
       return currentRoomId;
     },
-    
+
+    newHistory: (sharedType) => {
+      return new Y.UndoManager(sharedType.values);
+    }
   }
 }
