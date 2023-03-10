@@ -2,9 +2,7 @@ import * as Y from 'yjs';
 import { WebsocketProvider } from 'y-websocket';
 import * as awarenessProtocol from 'y-protocols/awareness.js';
 
-import Room from './createRoom';
-import SyncedList from './SyncedList';
-import SyncedMap from './SyncedMap';
+import Room from './createRoom.js';
 
 /**
  * @classdesc Client object that can be used to connect to a Room.
