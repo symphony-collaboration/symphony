@@ -132,7 +132,7 @@ class SyncedList {
   }
 
   /** Returns the number of elements of the SyncedList.*/
-  length() {
+  get length() {
     return this.#values.length;
   }
 
