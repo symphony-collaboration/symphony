@@ -1,4 +1,4 @@
-import * as Y from 'yjs';
+import History from "./History";
 
 /**
  * @classdesc The SyncedMap is a shared type that is similar to the JavaScript Map.
@@ -75,8 +75,8 @@ class SyncedMap {
     return this.#values.toJSON();
   }
 
-  newHistory() {
-    return new Y.UndoManager(this.#values);
+  newHistory(captureTimeout=0) {
+    return new History(this.#values, captureTimeout);
   }
 
   // yjs - clone() - Clone all #values into a fresh Y.Map instance. The returned type can be included into the Yjs document.
