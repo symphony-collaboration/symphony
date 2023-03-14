@@ -54,6 +54,7 @@ class History {
   #undoManager;
   #pausedIndex;
 
+  // Optionally, you may specify trackedOrigins to filter specific changes. By default, all local changes will be tracked. 
   constructor(syncedType, captureTimeout=0) {
     this.#undoManager = new Y.UndoManager(syncedType, {captureTimeout});
     this.#pausedIndex = null;
@@ -101,6 +102,15 @@ class History {
   stopCaptureTimeout() {
     this.#undoManager.stopCapturing();
   }
+
+  clear() {
+    this.#undoManager.clear();
+  }
+
+//   undoManager.on('stack-item-added', {stackItem: { meta: Map<any,any>, type: 'undo'|'redo'}}
+//     Register an event that is called when a StackItem is added to the undo- or the redo-stack.
+//   undoManager.on('stack-item-popped', { stackItem: { meta: Map<any,any> }, type: 'undo' | 'redo' })
+//     Register an event that is called when a StackItem is popped from the undo- or the redo-stack.
 }
 
 export default History;
