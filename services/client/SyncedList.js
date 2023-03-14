@@ -1,4 +1,4 @@
-import History from "./History";
+import History from "./History.js";
 
 /**
  * @classdesc The SyncedList is a shared type that is similar to the JavaScript Array.
