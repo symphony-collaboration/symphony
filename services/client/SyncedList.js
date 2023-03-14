@@ -1,4 +1,4 @@
-import * as Y from 'yjs';
+import History from "./History";
 
 /**
  * @classdesc The SyncedList is a shared type that is similar to the JavaScript Array.
@@ -188,8 +188,8 @@ class SyncedList {
     return this.#values.toArray();
   }
 
-  newHistory() {
-    return new Y.UndoManager(this.#values);
+  newHistory(captureTimeout=0) {
+    return new History(this.#values, captureTimeout);
   }
 
   // Returns an immutable JavaScript array that is equivalent to the SyncedList. Nested values will also be immutable.
