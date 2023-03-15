@@ -66,43 +66,15 @@ class Room {
     return this.#wsProvider.awareness.getStates();
   }
 
-  /**  */
+  /**  Merges operations in the callback function into a single operation.*/
   bundle(callback) {
     this.#ydoc.transact(callback);
   }
-
-  /* Broadcast an event to other users in the Room.
-  Event broadcasted to the room can be listened with Room.subscribe("event"). Takes a payload as first argument. Should be serializable to JSON.
-
-  By default, broadcasting an event acts as a “fire and forget”.
-  If the user is not currently in the room, the event is simply discarded.
-  With the option shouldQueueEventIfNotReady , the event will be queued and sent once the connection is established. */
-  // broadcastEvent() {
-
-  // }
 
   // Gets the current user. Returns null if it is not yet connected to the room.
   // getSelf() {
 
   // }  
-
-  // Batches modifications made during the given function.
-  // All the modifications are sent to other clients in a single message.
-  // All the subscribers are called only after the batch is over.
-  // All the modifications are merged in a single history item (undo/redo).
-  // [seems comparable to a yjs transaction]
-  // batch() {
-
-  // }
-
-  // Room’s history contains functions that let you undo and redo operation
-  // made on by the current client on the presence and storage.
-  // https://liveblocks.io/docs/api-reference/liveblocks-client#Room.history
-  // history() {
-    // return {
-    //   undo, redo, pause, resume, canUndo, canRedo
-    // }
-  // }
 
   // Get the storage status.
   // not-loaded: Initial state when entering the room.
@@ -132,11 +104,6 @@ class Room {
   newMap(name) {
     return new SyncedMap(this.#ydoc, name);
   }
-
-  // transact(callback, origin) {
-  //   ydoc.transact(callback, origin);
-  // }
 }
-
 
 export default Room;
