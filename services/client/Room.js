@@ -27,9 +27,8 @@ class Room {
    * 
    * @param {SyncedList | SyncedMap | string} subscribedItem 
    * @param {function} callback 
-   * @param {boolean} isDeepObject Not implemented
    */
-  subscribe(subscribedItem, callback, isDeepObject) {
+  subscribe(subscribedItem, callback) {
     if (subscribedItem instanceof SyncedList || subscribedItem instanceof SyncedMap) {
       subscribedItem.observe(callback);
     } else if (subscribedItem === 'others') {
