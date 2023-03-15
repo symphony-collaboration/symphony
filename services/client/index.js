@@ -1,6 +1,6 @@
 import * as Y from 'yjs';
 import { WebsocketProvider } from 'y-websocket';
-import * as awarenessProtocol from 'y-protocols/awareness.js';
+import * as awarenessProtocol from 'y-protocols/awareness';
 
 import Room from './Room.js';
 
@@ -19,19 +19,14 @@ export class SymphonyClient {
   /** Enters a room and returns it.
   * 
   * @param {string} roomId 
-  * @param {object} initialPresence Not implemented
-  * @param {object} initialStorage Not implemented
-  * @param {boolean} shouldInitiallyConnect Implemented but if you don't initially connect, can't connect later
   * @returns A new Room object.
   */
-  enter(roomId, intialPresence, initialStorage, shouldInitiallyConnect) {
+  enter(roomId) {
     const ydoc = new Y.Doc();
     const wsProviderOptions = {
-      connect: shouldInitiallyConnect,
       awareness: new awarenessProtocol.Awareness(ydoc),
     }
 
-    // possible to set up initial presence and initial storage here?
     this.#wsProvider = new WebsocketProvider(this.#websocketUrl, roomId, ydoc, wsProviderOptions);
     return new Room(this.#wsProvider, ydoc, roomId);
   }
