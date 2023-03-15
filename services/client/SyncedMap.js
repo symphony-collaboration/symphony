@@ -58,12 +58,6 @@ class SyncedMap {
     return this.#values.values();
   }
 
-  // Returns an immutable ES6 Map that is equivalent to the SyncedMap. Nested #values will also be immutable.
-  // toImmutable() {
-
-  // }
-
-  // yjs
   /** Removes all elements from the SyncedMap.*/
   clear() {
     this.#values.clear();
@@ -75,11 +69,11 @@ class SyncedMap {
     return this.#values.toJSON();
   }
 
+  /** Returns a new History object that can be used to undo/redo the current client's changes.*/
   newHistory(captureTimeout=0) {
     return new History(this.#values, captureTimeout);
   }
 
-  // yjs - clone() - Clone all #values into a fresh Y.Map instance. The returned type can be included into the Yjs document.
   /** Returns a new SyncedMap with the same #values as the caller.*/
   copy() {
     return this.#values.clone();
@@ -92,17 +86,6 @@ class SyncedMap {
   unobserve(callback) {
     this.#values.unobserve(callback);
   }
-
-
-  // yjs
-  // observeDeep(callback) {
-
-  // }
-
-  // yjs
-  // unobserveDeep(callback) {
-
-  // }
 }
 
 export default SyncedMap;

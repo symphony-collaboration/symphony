@@ -56,7 +56,7 @@ class History {
   #undoManager;
   #pausedIndex;
 
-  // Optionally, you may specify trackedOrigins to filter specific changes. By default, all local changes will be tracked. 
+  // implement something like yjs trackedOrigins? 
   constructor(syncedType, captureTimeout=0) {
     this.#undoManager = new Y.UndoManager(syncedType, {captureTimeout});
     this.#pausedIndex = null;
