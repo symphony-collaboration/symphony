@@ -169,7 +169,6 @@ class SyncedList {
     this.#values.delete(oldIndex);
   }
 
-  // https://liveblocks.io/docs/api-reference/liveblocks-client#SyncedList.set
   /** Replaces the element at the specified index of the SyncedList with the provided element.*/
   set(index, element) {
     if (index >= this.length || index <= 0) return;
@@ -188,17 +187,11 @@ class SyncedList {
     return this.#values.toArray();
   }
 
+  /** Returns a new History object that can be used to undo/redo the current client's changes.*/
   newHistory(captureTimeout=0) {
     return new History(this.#values, captureTimeout);
   }
 
-  // Returns an immutable JavaScript array that is equivalent to the SyncedList. Nested values will also be immutable.
-  // toImmutable() {
-    
-  // }
-
-  // yjs
-  // Do we need this?
   /** Returns a JSON representation of the SyncedList.*/
   toJSON() {
     return this.#values.toJSON();
@@ -212,30 +205,6 @@ class SyncedList {
   unobserve(callback) {
     this.#values.unobserve(callback);
   }
-
-  // yjs
-  // I don't think we need this - Room.subscribe calls the yjs observe method directly
-  // observe(callback) {
-    
-  // }
-
-  // yjs
-  // I don't think we need this - Room.unsubscribe could call the yjs observe method directly
-  // unobserve(callback) {
-
-  // }
-
-  // yjs
-  // Not sure if we need this. Can the isDeepObject parameter of subscribe handle this?
-  // observeDeep(callback) {
-
-  // }
-
-  // yjs
-  // Not sure if we need this. Same as above
-  // unobserveDeep(callback) {
-
-  // }
 }
 
 export default SyncedList;
