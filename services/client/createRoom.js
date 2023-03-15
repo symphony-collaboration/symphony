@@ -1,5 +1,6 @@
 import SyncedList from './SyncedList.js';
 import SyncedMap from './SyncedMap.js';
+import * as Y from 'yjs';
 
 /**
  * @classdesc Room object returned when calling <tt>Client.enter</tt>.
@@ -95,14 +96,24 @@ class Room {
   //   // return { root }
   // }
 
-  /** Returns a new SyncedList.*/
+  /** Returns a new top-level SyncedList.*/
   newList(name) {
     return new SyncedList(this.#ydoc, name);
   }
 
-  /** Returns a new SyncedMap.*/
+  /** Returns a new top-level SyncedMap.*/
   newMap(name) {
     return new SyncedMap(this.#ydoc, name);
+  }
+
+  /** Returns a new SyncedList that can be nested within another synced type.*/
+  newNestedList() {
+    return new Y.Array();
+  }
+
+  /** Returns a new SyncedMap that can be nested within another synced type.*/
+  newNestedMap() {
+    return new Y.Map();
   }
 }
 
