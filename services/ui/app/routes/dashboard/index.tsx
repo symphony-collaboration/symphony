@@ -2,8 +2,27 @@ import InfoCard from "~/components/InfoCard";
 import Divider from "~/components/Divider";
 import type { InfoCardInterface, GraphCardInterface } from "~/components/types";
 import GraphCard from "~/components/GraphCard";
+import type { LoaderFunction } from "@remix-run/node";
+import { useLoaderData } from "react-router";
+import { fetch } from "@remix-run/node";
+
+interface Connection {
+  timestamp: string
+  metadata: any
+  _id: string
+}
+
+export const loader: LoaderFunction = async () => {
+  const response = await fetch(`${process.env.SERVER_URL}/connections/since_yesterday/${(new Date()).getHours()}`);
+  const data = await response.json();
+
+  return data;
+};
 
 const Dashboard = () => {
+  const latestConnections = useLoaderData() as Awaited<Connection[]>
+
+
   const infoCards: InfoCardInterface[] = [
     {
       id: 1,
@@ -31,17 +50,17 @@ const Dashboard = () => {
     {
       id: 1,
       metricName: "Daily Active Users",
-      data: "1",
+      data: Array(7).fill(latestConnections.length),
     },
     {
       id: 2,
       metricName: "Connections",
-      data: "2",
+      data: [1, 2, 3, 4],
     },
     {
       id: 3,
       metricName: "Active Rooms",
-      data: "3",
+      data: [9, 5, 7, 3, 5, 1],
     },
   ];
 

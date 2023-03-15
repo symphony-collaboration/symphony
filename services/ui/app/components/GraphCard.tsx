@@ -15,15 +15,16 @@ interface GraphCardProps {
   data?: any;
 }
 
-export default function GraphCard({ metricName }: GraphCardProps) {
-  const data = {
+export default function GraphCard({ metricName, data }: GraphCardProps) {
+
+  const viewableData = {
     labels: [`Yesterday ${getCurrent24HrTime()}`]
       .concat(Array(5).fill(""))
       .concat([`Today ${getCurrent24HrTime()}`]),
     datasets: [
       {
-        labels: "Sales of the week",
-        data: [3, 6, 5, 2, 7, 3, 4],
+        labels: "",
+        data,
         backgroundColor: "aqua",
         tension: 0.4,
         borderColor: "#4f46e5",
@@ -48,7 +49,7 @@ export default function GraphCard({ metricName }: GraphCardProps) {
         </div>
       </div>
       <div>
-        <Line data={data} options={options}></Line>
+        <Line data={viewableData} options={options}></Line>
       </div>
     </div>
   );

@@ -6,8 +6,10 @@ import { fetch } from "@remix-run/node";
 import { pluralize } from "~/shared/utils";
 
 export const loader = async () => {
-  const response = await fetch("https://imykolas.com/api/rooms")
-  const rooms = await response.json()
+  const response = await fetch(`${process.env.SERVER_URL}/rooms`);
+  const rooms = await response.json();
+
+  rooms.forEach((room: Room) => (room.name = room.name.split("/").at(-1)!)); // remove after room names fixed in database
 
   return rooms;
 };
