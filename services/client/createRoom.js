@@ -66,6 +66,11 @@ class Room {
     return this.#wsProvider.awareness.getStates();
   }
 
+  /**  */
+  bundle(callback) {
+    this.#ydoc.transact(callback);
+  }
+
   /* Broadcast an event to other users in the Room.
   Event broadcasted to the room can be listened with Room.subscribe("event"). Takes a payload as first argument. Should be serializable to JSON.
 
