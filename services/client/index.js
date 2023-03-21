@@ -1,6 +1,7 @@
 import * as Y from 'yjs';
 import { WebsocketProvider } from 'y-websocket';
 import * as awarenessProtocol from 'y-protocols/awareness';
+import { IndexeddbPersistence } from 'y-indexeddb';
 
 import Room from './Room.js';
 
@@ -26,7 +27,7 @@ export class SymphonyClient {
     const wsProviderOptions = {
       awareness: new awarenessProtocol.Awareness(ydoc),
     }
-
+    new IndexeddbPersistence(roomId, ydoc);
     this.#wsProvider = new WebsocketProvider(this.#websocketUrl, roomId, ydoc, wsProviderOptions);
     return new Room(this.#wsProvider, ydoc, roomId);
   }
