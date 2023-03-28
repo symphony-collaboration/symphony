@@ -11,9 +11,10 @@ import Room from './Room.js';
 
 export class SymphonyClient {
   #websocketUrl;
-  #wsProvider;
+  #rooms;
 
   constructor(websocketUrl) {
+    this.#rooms = {};
     this.#websocketUrl = websocketUrl;
   }
 
@@ -28,14 +29,16 @@ export class SymphonyClient {
       awareness: new awarenessProtocol.Awareness(ydoc),
     }
     new IndexeddbPersistence(roomId, ydoc);
-    this.#wsProvider = new WebsocketProvider(this.#websocketUrl, roomId, ydoc, wsProviderOptions);
-    return new Room(this.#wsProvider, ydoc, roomId);
+    const wsProvider = new WebsocketProvider(this.#websocketUrl, roomId, ydoc, wsProviderOptions);
+    this.#rooms[roomId] = wsProvider;
+    return new Room(wsProvider, ydoc, roomId);
   }
 
   /** Leaves a room.*/
-  leave() {
-    if (this.#wsProvider) {
-      this.#wsProvider.disconnect();
+  leave(roomId) {
+    const wsProvider = this.#rooms[roomId];
+    if (wsProvider) {
+      wsProvider.disconnect();
     }
   }
 }
