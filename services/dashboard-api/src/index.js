@@ -29,6 +29,5 @@ app.listen(PORT, async() => {
 
   // save container IP in memory on startup
   SERVER.ip = await getContainerIp();
-
 })
 

@@ -1,11 +1,6 @@
 const axios = require('axios');
 
 const metaDataEndpoint = process.env.ECS_CONTAINER_METADATA_URI_V4;
-const cluster = process.env.CLUSTER;
-const region = process.env.REGION;
-
-AWS.config.update({region});
-const ecs = new AWS.ECS();
 
 async function getContainerIp() {
     try {

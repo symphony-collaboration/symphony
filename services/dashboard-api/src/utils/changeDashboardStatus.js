@@ -3,21 +3,21 @@ const { default: axios } = require("axios")
 
 const { SERVER } = require("../server.config.js");
 
-const changeDashboardStatus = async(serverIp, status) => {
+const changeDashboardStatus = async(wsServerIp, status) => {
   const port = process.env.PORT;
-  const servicePort = process.env.PUB_SUB_SERVICE_PORT;
+  const wsPort = process.env.WS_PORT;
 
-  const remoteServerUrl = `http://${serverIp}:${servicePort}/api/dashboard`
+  const wsServerUrl = `http://${wsServerIp}:${wsPort}/api/dashboard`
   const eventsUrl = `http://${SERVER.ip}:${port}/api/events`;
 
-  console.log("CHANGING DASHBOARD STATUS", {status, remoteServerUrl, eventsUrl});
+  console.log("CHANGING DASHBOARD STATUS", {status, wsServerUrl, eventsUrl});
 
   const data = {
     active: status,
     eventsUrl,
   }
 
-  const res = await axios.put(remoteServerUrl, data);
+  const res = await axios.put(wsServerUrl, data);
 
   if (!res.data) throw new Error("Current connections data not received from running ws servers");
   return res.data;
