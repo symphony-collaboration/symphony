@@ -75,30 +75,6 @@ class Room {
     this.#ydoc.transact(callback);
   }
 
-  // Gets the current user. Returns null if it is not yet connected to the room.
-  // getSelf() {
-
-  // }  
-
-  // Get the storage status.
-  // not-loaded: Initial state when entering the room.
-  // loading: Once the storage has been requested via room.getStorage().
-  // synchronizing: When some local updates have not been acknowledged by Liveblocks servers.
-  // synchronized: Storage is in sync with Liveblocks servers.
-  // getStorageStatus() {
-
-  // }
-
-  // Close the room connection and try to reconnect.
-  // reconnect() {
-    
-  // }
-
-  // Get the room’s storage asynchronously (returns a Promise). The storage’s root is a LiveObject.
-  // async getStorage() {
-  //   // return { root }
-  // }
-
   /** Returns a new top-level SyncedList.*/
   newList(name) {
     return new SyncedList(this.#ydoc, name);
