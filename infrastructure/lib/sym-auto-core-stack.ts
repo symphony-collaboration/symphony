@@ -130,7 +130,6 @@ export class SymAutoCoreStack extends cdk.Stack {
     
     // Create an S3 bucket
     const persitentStorage = new s3.Bucket(this, 'SymphonyPeristence', {
-      bucketName: 'symphony-room-storage',
       versioned: true,
       encryption: s3.BucketEncryption.S3_MANAGED,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
