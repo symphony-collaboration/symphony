@@ -17,10 +17,6 @@ class Room {
     this.#roomId = roomId;
   }
 
-  // https://liveblocks.io/docs/api-reference/liveblocks-client#Room.subscribe(storageItem)
-
-  // Could implement other subscribe methods e.g. connection, error, history, storage-status
-
   /** Subscribes to updates for an item.
    * If the <tt>subscribedItem</tt> is a SyncedList or SyncedMap, the provided callback is executed whenever that shared type changes.
    * If the <tt>subscribedItem</tt> is <tt>'others'</tt>, the provided callback is executed whenever another client's presence changes.
