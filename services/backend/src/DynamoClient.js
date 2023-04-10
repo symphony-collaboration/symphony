@@ -12,7 +12,6 @@ const dynamoDB = new AWS.DynamoDB({
 
 const addFirstRoomIp = async(docName) => {
   const ip = SERVER.ip;
-  console.log("adding first room ip to dynamo table", {ip});
 
   const params = {
     TableName,
@@ -33,8 +32,6 @@ const addFirstRoomIp = async(docName) => {
 
 const appendRoomIp = async(docName) => {
   const ip = SERVER.ip;
-
-  console.log("appending server ip to room ip address string set", {ip});
 
   const params = {
     TableName,
@@ -64,7 +61,7 @@ const updateRoomIps = async(docName) => {
       // create item and initiallze with string set if first user
       return await addFirstRoomIp(docName)
     } catch(e) {
-      console.log({e})
+      console.log("failed appendRoomIp() && addFirstRoomIp()", {e})
       throw e
     }
   }

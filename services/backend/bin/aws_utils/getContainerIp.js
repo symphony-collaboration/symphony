@@ -13,7 +13,6 @@ async function getContainerIp() {
         if (response.data) {
             const {Networks } = response.data;
             const privateIp = Networks[0].IPv4Addresses[0];
-            console.log({privateIp});
             return privateIp
         }
     } catch (error) {

@@ -9,13 +9,12 @@ Added long-term persistence
 
 Added metadata persistence for developer analysis
   - RDS: storage of room metadata
-  - Mongo Time-Series: time-series storage of connections
+  - denormalized a table for storing time-based data
+    - we opted for simplicity as opposed to including an extra database just to store `connections`
 
 Most existing scalable implementaitons of `y-websocket` use 2 methods
   - sharding: placing document state on specific servers, users of same document routed to same server(s)
   - pub/sub: use an internal pub/sub mechanism that receives updates from ws servers and coordinates the message propagation to the appropriate servers
-
-We attempted both approaches, but reached a more complete solution with the pub/sub approach
 
 There are several ways to implement scalability with pub/sub
 Most implementations use redis, which integrates easily with websockets. 
@@ -38,3 +37,16 @@ For the pub/sub mechanism we used a Redis cluster on AWS Elasticache. Elasticach
 DynamoDB is used to store the `documentID` mappings to a collection of ip addresses. It is inexpensive, provides low latency, and integrates
 easily with AWS infrastructure.
 
+The decision to use DynamoDB along with the redis cluster came down to a few reasons:
+- Decoupling concerns
+  - store the session data away from the redis cluster
+- Redis Performance
+  - using redis to store more permanent data (ip addresess) is viable, and Redis will hold the data in memory.
+    In the event of a node failure, the data is lost, which is undesired. A workaround is to configure redis to
+    write the data to disk for durability and recovery. Redis provides 2 mechanism for this (RDB snapshotting or AOF append-only file).
+    
+    Ensuring the integrity of data however, will come at a performance cost, and the whole idea is to keep persistence away from 
+    the redis cluster. It should only be concerned with delivering messages, not holding data in memory.
+
+    Additionally, using an Elasticache Redis Cluster for pub/sub messaging only allows it to be used in non-cluster mode.
+    It can only have up to 6 nodes. (single or multi-leader replication)

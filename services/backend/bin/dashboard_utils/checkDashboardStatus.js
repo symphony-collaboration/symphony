@@ -8,8 +8,6 @@ const checkDashboardStatus = async(target, port) => {
     method: 'GET',
   };
 
-  console.log({headers});
-
   return await new Promise((resolve, reject) => {
     const req = http.request(headers, (res) => {
       let data = ''

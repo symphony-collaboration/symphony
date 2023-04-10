@@ -59,7 +59,10 @@ class Persistence {
     let command = new PutObjectCommand(params);
 
     try {
-      await pgExecute(async () => this.pg.room.update({ where: { name: docName }, data: { bytes: state.length } }))
+      await pgExecute(async () => this.pg.room.update({ 
+        where: { name: docName }, 
+        data: { bytes: state.length, updatedAt: new Date() } 
+      }))
       await this.s3.send(command);
     } catch (err) {
       console.log(`Could not store doc: `, err);
