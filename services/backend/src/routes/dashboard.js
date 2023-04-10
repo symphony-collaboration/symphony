@@ -3,7 +3,6 @@ const { dashboard, docs } = require("../../server.config.js");
 const dashboardApi = (req, res) => {
   if (req.method !== "PUT") return;
 
-  console.log("being processed by dashboard router");
   let body = '';
   req.on('data', chunk => body += chunk)
   req.on('end', () => {
@@ -31,7 +30,6 @@ const dashboardApi = (req, res) => {
 
     dashboard.eventsUrl = data.eventsUrl;
     
-    console.log("in PUT /api/dashboard", {dashboard});
     const conns = [...docs.keys()].map(docName => {
       const docConns = {};
       docConns[docName] = docs.get(docName).conns.size

@@ -67,12 +67,9 @@ const persistence = {
             if (currentState) {
               Y.applyUpdate(ydoc, currentState);
             };
-            // applyRecentUpdates(ydoc, updates);
-            console.log("applied remote state vector to doc")
             resolve(true)
           } catch {
             console.log(ip, "failed to respond or provided invalid doc state" );
-            // handle removing the from map?
             return false;
           }
         }) 
@@ -99,7 +96,6 @@ const persistence = {
     for (let attempts = 1; attempts <= 3; attempts++) {
       try {
         // update the room ips string set in dynamodb
-        console.log("saving ip to dynamo");
         await updateRoomIps(docName);
         return;
       } catch(e) {
@@ -292,7 +288,6 @@ const closeConn = async(doc, conn) => {
     }
 
     // send event to update connections tally for room
-    console.log("on close conn", {dashboard});
 
     if (dashboard.active) {
       axios.post(dashboard.eventsUrl, { room: doc.name, add: -1 }).catch(e => console.log("failed to post disconnect"));
@@ -331,7 +326,6 @@ exports.setupWSConnection = (conn, req, { docName = req.url.slice(1).split('?')[
   pgExecute(async () => pg.connection.create({ data: { roomName: docName } }));
 
   // send event to update connections tally for room
-  console.log("on new conn", {dashboard});
   if (dashboard.active) {
     axios.post(dashboard.eventsUrl, { room: docName, add: 1 }).catch(e => console.log("failed to post disconnect"));;
   }

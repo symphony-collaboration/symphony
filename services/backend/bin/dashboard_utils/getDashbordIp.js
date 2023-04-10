@@ -9,8 +9,6 @@ const clusterName = process.env.DASHBOARD_CLUSTER || 'DemoCluster';
 const serviceName = process.env.DASHBOARD_SERVICE || 'SymDashboard';
 
 const getAllTasksForService = async () => {
-  console.log({clusterName, serviceName});
-
   try {
     const listTasksParams = {
       cluster: clusterName,
@@ -21,7 +19,7 @@ const getAllTasksForService = async () => {
     const taskArns = listTasksResponse.taskArns;
 
     if (taskArns.length === 0) {
-      console.log('No tasks found for the service.');
+      console.log('No tasks found for the dashboard service.');
       return;
     }
     
@@ -39,7 +37,6 @@ const getAllTasksForService = async () => {
       return privateIpDetail.value;
     });
 
-    console.log({privateIpAddresses})
     return privateIpAddresses[0];
   } catch (error) {
     console.error('Error fetching tasks for the', `${serviceName}\n\n`, error);

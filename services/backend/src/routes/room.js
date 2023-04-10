@@ -4,7 +4,6 @@ const { docs } = require("../../server.config.js");
 const roomApi = (req, res) => {
   const {method, url} = req;
 
-  console.log("in room api", {method, url})
   if (method !== "GET") return;
 
   const query = url.split("?").slice(1);

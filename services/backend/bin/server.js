@@ -77,13 +77,8 @@ httpServer.on('request', (req, res) => {
 
 
 httpServer.listen(port, host, async() => {
-  console.log("Server on port", port, "on host:", host);
+  console.log("final pubsub server")
 
-  const metadataStorageUrl = process.env.METADATA_DB_URL || "no metadata storage url in 'process.env.DATABASE_URL'";
-  
-  console.log({metadataStorageUrl});
-
-  console.log("getting container IP");
   // save container IP in memory on startup
   SERVER.ip = await getContainerIp();
   // activate dashboard status on startup if active
