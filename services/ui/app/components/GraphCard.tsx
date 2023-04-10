@@ -6,8 +6,8 @@ import {
   LinearScale,
   PointElement,
 } from "chart.js";
-import { getCurrent24HrTime } from "../shared/utils";
-
+import { getTimeLabels } from "../shared/utils";
+import { MS_IN_DAY, TIME_BLOCK } from "~/shared/constants";
 ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement);
 
 interface GraphCardProps {
@@ -16,17 +16,19 @@ interface GraphCardProps {
 }
 
 export default function GraphCard({ metricName, metricData }: GraphCardProps) {
+
+  const timeLabels = getTimeLabels();
+
+  console.log({timeLabels})
   const data = {
-    labels: [`Yesterday ${getCurrent24HrTime()}`]
-      .concat(Array(5).fill(""))
-      .concat([`Today ${getCurrent24HrTime()}`]),
+    labels: timeLabels,
     datasets: [
       {
-        labels: "Sales of the week",
+        labels: metricName,
         data: metricData,
-        backgroundColor: "aqua",
+        backgroundColor: "#15376e",
         tension: 0.4,
-        borderColor: "#4f46e5",
+        borderColor: "#29ea8a",
       },
     ],
   };
@@ -42,10 +44,7 @@ export default function GraphCard({ metricName, metricData }: GraphCardProps) {
   return (
     <div className="flex-1 group flex flex-col justify-between rounded-sm bg-white p-4 shadow-xl transition-shadow sm:p-6 lg:p-8">
       <div>
-        <h3 className="font-medium text-gray-900">{metricName}</h3>
-        <div className="border-t-2 border-gray-100 pt-1">
-          <p className="mt-1 text-sm text-gray-700">Localhost</p>
-        </div>
+        <h3 className="font-medium text-gray-900 text-center mb-2">{metricName}</h3>
       </div>
       <div>
         <Line data={viewableData} options={options}></Line>

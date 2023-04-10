@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('/css/fonts.css');
+
 img.reload-icon {
   display: inline-block;
   margin: 5px;
@@ -43,15 +45,14 @@ ul.synced-objects-list {
 ul.synced-objects-list > li {
   border: 1px solid black;
   border-radius: 5px;
-  background-color:  #9c78d6;
+  background-color:  #3e86fa;
   padding: 5px;
-  margin: 10px;
+  margin: 10px 10px 10px 0px;
   color: white;
-  cursor: pointer;
 }
 
-ul.synced-objects-list > li:hover {
-  background-color:#5528d1
+ul.synced-objects-list > li .synced-type {
+  font-family: 'Along Sans s2 Light';
 }
 
 
@@ -61,6 +62,7 @@ ul.synced-objects-list span.view-arrow {
   margin-left: 10px;
   padding: 2px;
   top: 0px;
+  cursor: pointer;
   -webkit-transition: all 0.3s ease-in-out;
   -o-transition: all 0.3s ease-in-out;
   transition: all 0.3s ease-in-out;

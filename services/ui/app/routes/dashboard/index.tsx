@@ -1,6 +1,6 @@
 import InfoCard from "~/components/InfoCard";
 import Divider from "~/components/Divider";
-import { useLoaderData } from "@remix-run/react";
+import { SYMPHONY_WS_URL } from "~/shared/constants";
 
 import type { InfoCardInterface, GraphCardInterface, Connection } from "~/components/types";
 import { SYMPHONY_API } from "~/shared/constants";
@@ -81,7 +81,6 @@ const Dashboard = () => {
     <>
       <header className="mb-8">
         <strong className="block font-medium text-gray-900 mb-5">
-          {" "}
           Welcome to Symphony{" "}
         </strong>
         <p className="mt-1 text-sm text-gray-700">
@@ -113,6 +112,9 @@ const Dashboard = () => {
             Last Updated: {lastUpdate ? lastUpdate.toLocaleTimeString() : "Unable to retrieve metrics"}
           </span>
         </strong>
+        <span className="text-sm text-gray-500 mb-2">
+          Websocket Servers Endpoint: <b className="mx-2">{SYMPHONY_WS_URL}</b>
+        </span>
         <DailyOverviewMetrics metrics={metrics} />
     </>
   );

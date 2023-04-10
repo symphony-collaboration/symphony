@@ -16,7 +16,8 @@ export const meta: MetaFunction = () => ({
 });
 
 export const links: LinksFunction = () => [
-  { rel: 'stylesheet', href: stylesheet }
+  { rel: 'stylesheet', href: stylesheet },
+  { rel: 'stylesheet', href: '/styles/fonts.css'}
 ]
 
 

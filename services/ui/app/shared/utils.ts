@@ -15,6 +15,21 @@ export const pluralize = (count: number, noun: string, suffix = 's') => {
   return `${count} ${noun}${count !== 1 ? suffix : ''}`;
 }
 
+export const getTimeLabels = (): string[] => {
+  const timeBlockLabels : string[] = [];
+
+  const now = new Date();
+  let start = new Date(now.getTime() - (MS_IN_DAY));
+
+  while (start <= now) {
+    const timeStr = start.toLocaleTimeString();
+    timeBlockLabels.push(timeStr);
+    start = new Date(start.getTime() + TIME_BLOCK);
+  }
+
+  return timeBlockLabels;
+}
+
 export const processConnectionMetrics = (connections: any[]) => {
   connections as Connection[];
 
@@ -25,7 +40,7 @@ export const processConnectionMetrics = (connections: any[]) => {
   let currentBlock = today.getTime() - MS_IN_DAY;
   let nextBlock = new Date(currentBlock + TIME_BLOCK);
 
-  const formattedMetrics = [];
+  const formattedMetrics = [0];
 
   let idx = 0;
   const lastConn = connections.length;
@@ -57,7 +72,7 @@ export const processRoomMetrics = (connections: any[]) => {
   let currentBlock = today.getTime() - MS_IN_DAY;
   let nextBlock = new Date(currentBlock + TIME_BLOCK);
 
-  const formattedMetrics = [];
+  const formattedMetrics = [0];
 
   let idx = 0;
   const lastConn = connections.length;
@@ -91,7 +106,7 @@ export const formatRawConnections = (connections: any[]) => {
   connections.forEach((conn: Connection) => conn.timestamp = new Date(conn.timestamp))
 }
 
-const SyncedTypes: {[key: string]: string} = {
+export const SyncedTypes: {[key: string]: string} = {
   'YText': 'SyncedText',
   'YArray': 'SyncedArray',
   'YMap': 'SyncedMap'

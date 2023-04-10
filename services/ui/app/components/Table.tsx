@@ -66,7 +66,7 @@ export function Table<Data extends object>({
                     <td key={cell.id}>
 
                       <svg height="100" width="100" className="blinking">
-                        <circle cx="50" cy="50" r="7" fill="green" />
+                        <circle cx="50" cy="50" r="7" fill="#29ea8a" />
                         Active  
                       </svg> 
                     </td>
