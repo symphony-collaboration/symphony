@@ -12,19 +12,18 @@ ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement);
 
 interface GraphCardProps {
   metricName: string;
-  data?: any;
+  metricData?: any;
 }
 
-export default function GraphCard({ metricName, data }: GraphCardProps) {
-
-  const viewableData = {
+export default function GraphCard({ metricName, metricData }: GraphCardProps) {
+  const data = {
     labels: [`Yesterday ${getCurrent24HrTime()}`]
       .concat(Array(5).fill(""))
       .concat([`Today ${getCurrent24HrTime()}`]),
     datasets: [
       {
-        labels: "",
-        data,
+        labels: "Sales of the week",
+        data: metricData,
         backgroundColor: "aqua",
         tension: 0.4,
         borderColor: "#4f46e5",
@@ -35,7 +34,7 @@ export default function GraphCard({ metricName, data }: GraphCardProps) {
   const options = {
     scales: {
       y: {
-        display: false,
+        display: true,
       },
     },
   };
