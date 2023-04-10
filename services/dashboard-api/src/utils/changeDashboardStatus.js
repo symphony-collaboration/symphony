@@ -10,8 +10,6 @@ const changeDashboardStatus = async(wsServerIp, status) => {
   const wsServerUrl = `http://${wsServerIp}:${wsPort}/api/dashboard`
   const eventsUrl = `http://${SERVER.ip}:${port}/api/events`;
 
-  console.log("CHANGING DASHBOARD STATUS", {status, wsServerUrl, eventsUrl});
-
   const data = {
     active: status,
     eventsUrl,

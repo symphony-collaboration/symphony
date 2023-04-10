@@ -9,8 +9,6 @@ const wsClusterName = process.env.WS_CLUSTER || 'No WS_CLUSTER env';
 const wsServiceName = process.env.WS_SERVICE || 'No WS_SERVICE env';
 
 const getAllTasksForService = async () => {
-  console.log({wsClusterName, wsServiceName});
-
   try {
     const listTasksParams = {
       cluster: wsClusterName,
@@ -21,7 +19,7 @@ const getAllTasksForService = async () => {
     const taskArns = listTasksResponse.taskArns;
 
     if (taskArns.length === 0) {
-      console.log('No tasks found for the service.');
+      console.log('No tasks found for the WS service');
       return [];
     }
 
@@ -39,7 +37,6 @@ const getAllTasksForService = async () => {
       return privateIpDetail.value;
     });
 
-    console.log({privateIpAddresses})
     return privateIpAddresses;
   } catch (error) {
     console.error('Error fetching tasks for the PubSubService', error);
