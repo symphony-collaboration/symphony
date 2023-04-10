@@ -1,10 +1,8 @@
-import { useEventSource, eventStream, } from "remix-utils";
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useEventSource, } from "remix-utils";
+import { useCallback } from "react";
 import { SYMPHONY_API } from "~/shared/constants";
-import { ColumnDef, SortingState } from "@tanstack/react-table";
 
 import columns from "./ConnectionColumns";
-import { RoomConnections } from "./types";
 
 import {
   useReactTable,
@@ -101,7 +99,7 @@ export default function LiveConnections({onRoomInspect, inspectingRoom}:LiveConn
                   <a
                     key={`live-state-${room.name}-button`}
                     href="/LiveRoomState"
-                    className="inline-block rounded bg-indigo-600 px-4 py-2 text-xs font-medium text-white hover:bg-indigo-700"
+                    className="inline-block rounded bg-[#3e86fa] px-4 py-2 text-xs font-medium text-white hover:bg-[#41c9f9]"
                     onClick={(e: any) => onRoomInspect(e, room.name)}
                   > 
                     {inspectingRoom === room.name ? "Disconnect" : "View" }

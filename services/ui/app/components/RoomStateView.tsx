@@ -98,7 +98,10 @@ export default function RoomStateView({room, onRoomInspect}: RoomStateViewProps)
 
               return <li key={`${key}-list-item`} className={className}>
                 <span key={`${key}-list-span`} className="mx-2 my-2">
-                  <i key={`${key}-type`}>{syncedObjects[key].type}</i>: "<b key={`bolded-${key}`}>{key}</b>"
+
+                  <span key={`${key}-type`} className="synced-type">{syncedObjects[key].type}</span>: 
+                  "<b key={`bolded-${key}`}>{key}</b>"
+
                   <span key={key} onClick={() => handleViewSyncedTypeToggle(key)} className="view-arrow">
                     {viewingSyncedType === key ? "🔼" : "🔽"}
                   </span>

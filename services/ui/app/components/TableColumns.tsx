@@ -37,7 +37,7 @@ const columns = (onRoomSelect: any, inspecting: string) => [
           <span className="whitespace-nowrap py-2">
             <a
               href="/dashboard/rooms"
-              className="inline-block rounded bg-indigo-600 px-4 py-2 text-xs font-medium text-white opacity-60"
+              className="inline-block rounded bg-[#29ea8a] px-4 py-2 text-xs font-medium text-white opacity-60"
               onClick={e => e.preventDefault()}
             >
               Active
@@ -52,7 +52,7 @@ const columns = (onRoomSelect: any, inspecting: string) => [
             <span className="py-2">
               <a
                 href="/dashboard/rooms"
-                className="inline-block rounded bg-indigo-600 px-4 py-2 text-xs font-medium text-white hover:bg-indigo-700 opacity-60"
+                className="inline-block rounded bg-[#41c9f9] px-4 py-2 text-xs font-medium text-white hover:bg-[#3e86fa]"
                 onClick={e => onRoomSelect(e, room.name)}
               >
                 Hide
@@ -68,7 +68,7 @@ const columns = (onRoomSelect: any, inspecting: string) => [
       <span className="whitespace-nowrap py-2">
         <a
           href="/dashboard/rooms"
-          className="inline-block rounded bg-indigo-600 px-4 py-2 text-xs font-medium text-white hover:bg-indigo-700"
+          className="inline-block rounded bg-[#3e86fa] px-4 py-2 text-xs font-medium text-white hover:bg-[#41c9f9]"
           onClick={e => onRoomSelect(e, props.row.original.name)}
         >
           View

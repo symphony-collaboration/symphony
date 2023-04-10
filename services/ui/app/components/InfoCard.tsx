@@ -17,7 +17,7 @@ export default function Card({ title, description, link }: InfoCardProps) {
             <p className="mt-1 text-sm text-gray-700">{description}</p>
           </div>
         </div>
-        <div className="mt-4 inline-flex items-center gap-2 text-indigo-600">
+        <div className="mt-4 inline-flex items-center gap-2 text-[#3e86fa]">
           <p className="font-medium">{link.text}</p>
           <svg
             xmlns="http://www.w3.org/2000/svg"

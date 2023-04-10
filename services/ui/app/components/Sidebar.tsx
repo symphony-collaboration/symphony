@@ -70,7 +70,7 @@ export default function Sidebar() {
             :
               (
                 <svg height="100" width="100" className="blinking">
-                  <circle cx="50" cy="50" r="10" fill="green" />
+                  <circle cx="50" cy="50" r="8" fill="#29ea8a" />
                   Sorry, your browser does not support inline SVG.  
                 </svg> 
               )

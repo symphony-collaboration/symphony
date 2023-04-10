@@ -23,8 +23,8 @@ const columns = [
     cell: (props) => (
       <td className="whitespace-nowrap py-2">
         <a
-          href="#"
-          className="inline-block rounded bg-indigo-600 px-4 py-2 text-xs font-medium text-white hover:bg-indigo-700"
+          href="/rooms/view"
+          className="inline-block rounded bg-[#3e86fa] px-4 py-2 text-xs font-medium text-white hover:bg-[#41c9f9]"
         >
           State
         </a>
