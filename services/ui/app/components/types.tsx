@@ -8,7 +8,11 @@ export interface InfoCardInterface {
 export interface GraphCardInterface {
   id: number;
   metricName: string;
-  data: any;
+  metricData: any;
+}
+
+export type SeenRoom = {
+  [key: string]: boolean
 }
 
 export type Room = {
@@ -20,3 +24,14 @@ export type Room = {
   lastConnectedAt?: string;
   active: boolean;
 };
+
+export type Connection = {
+  id: number;
+  roomName: string,
+  timestamp: Date,
+}
+
+export type RoomConnections = {
+  name: string,
+  conns: number,
+}

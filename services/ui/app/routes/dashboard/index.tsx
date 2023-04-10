@@ -1,7 +1,13 @@
 import InfoCard from "~/components/InfoCard";
 import Divider from "~/components/Divider";
-import type { InfoCardInterface, GraphCardInterface } from "~/components/types";
-import GraphCard from "~/components/GraphCard";
+import { useLoaderData } from "@remix-run/react";
+
+import type { InfoCardInterface, GraphCardInterface, Connection } from "~/components/types";
+import { SYMPHONY_API } from "~/shared/constants";
+import { formatRawConnections, getCurrent24HrTime, processConnectionMetrics, processRoomMetrics } from "~/shared/utils";
+import { useEffect, useState } from "react";
+
+import DailyOverviewMetrics from "~/components/DailyOverview";
 
 const Dashboard = () => {
   const infoCards: InfoCardInterface[] = [
@@ -27,24 +33,47 @@ const Dashboard = () => {
     },
   ];
 
+  const [lastUpdate, setLastUpdate] = useState<Date>();
+  const [connections, setConnections] = useState<Connection[]>([]);
+
+  const fetchDailyOverviewMetrics = async() => {
+    const hour = getCurrent24HrTime().split(":")[0];
+    const apiUrl = `${SYMPHONY_API}/connections/since_yesterday/${hour}`;
+    
+    try {
+      const res = await fetch(apiUrl);  
+      const connections = await res.json();
+    
+      formatRawConnections(connections);
+      setConnections(connections);
+      setLastUpdate(new Date())
+    } catch {
+      
+    }
+  }
+  
+  const handleRefresh = () => {
+    fetchDailyOverviewMetrics();
+  }
+
+  useEffect(() => {
+    fetchDailyOverviewMetrics();
+  }, [])
+
   const metrics: GraphCardInterface[] = [
     {
-      id: 1,
-      metricName: "Daily Active Users",
-      data: "1",
-    },
-    {
       id: 2,
-      metricName: "Connections",
-      data: "2",
+      metricName: "Active Connections",
+      metricData: processConnectionMetrics(connections),
     },
     {
       id: 3,
       metricName: "Active Rooms",
-      data: "3",
+      metricData: processRoomMetrics(connections),
     },
   ];
 
+  
   return (
     <>
       <header className="mb-8">
@@ -70,18 +99,18 @@ const Dashboard = () => {
         })}
       </div>
       <Divider />
-      <strong className="block font-medium text-gray-900 mb-5">Overview</strong>
-      <div className="flex justify-between gap-10 mb-10">
-        {metrics.map((metric) => {
-          return (
-            <GraphCard
-              key={metric.id}
-              metricName={metric.metricName}
-              data={metric.data}
-            />
-          );
-        })}
-      </div>
+        <strong className="block font-medium text-gray-900 mb-5">
+          Last 24 hours
+          <img 
+            src="/images/reload-icon.png" alt="reload icon" 
+            height="40px" width="40px" className="reload-icon" 
+            onClick={handleRefresh}  
+          />
+          <span className="text-xs text-gray-500">
+            Last Updated: {lastUpdate ? lastUpdate.toLocaleTimeString() : "Unable to retrieve metrics"}
+          </span>
+        </strong>
+        <DailyOverviewMetrics metrics={metrics} />
     </>
   );
 };
