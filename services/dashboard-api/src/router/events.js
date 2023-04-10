@@ -1,6 +1,7 @@
 /** @module eventsAPI */
 const eventsRouter = require('express').Router();
 require("dotenv").config();
+
 const { SERVER } = require("../server.config.js");
 const changeDashboardStatus = require("../utils/changeDashboardStatus.js");
 const {getAllTasksForService} = require("../utils/getActiveServers.js");
@@ -10,10 +11,7 @@ const events = {};
 
 const activateServerUpdates = async(serverIp) => {
   try {
-    console.log("activating server updates for ", {serverIp});
-
     const docConns = await changeDashboardStatus(serverIp, true);
-    console.log({docConns})
     docConns.forEach(record => {
       const [docName, conns] = Object.entries(record)[0];
 
@@ -53,13 +51,10 @@ eventsRouter.get("/events", async(req, res) => {
   };
 
   clients.push(newClient);
-  console.log("in open connect", {clients})
 
   /* if first client initialize events */
   if (clients.length === 1) {
-    //////////////// LOCAL 
     const allServers = await getAllTasksForService();
-    console.log({allServers});
 
     const getServerConnsUpdates = allServers.map(serverIp => activateServerUpdates(serverIp));
     
@@ -76,15 +71,9 @@ eventsRouter.get("/events", async(req, res) => {
   req.on("close", async() => {
     clients = clients.filter(client => client.id !== clientId);
 
-    console.log("closed connection", {inactive: !clients.length});
-
     // if no more clients viewing dashboard
     if (!clients.length) {
-      console.log("setting dashboard status to inactive on remote servers");
-
-  //////////////// LOCAL 
       const servers = await getAllTasksForService();
-      // servers.forEach(async(serverIp) => await changeDashboardStatus(serverIp, false));
       
       // reset events or accumulates
       Object.keys(events).forEach(key => delete events[key]);

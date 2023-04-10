@@ -24,8 +24,7 @@ app.use('/api', eventsRouter);
 
 app.listen(PORT, async() => {
   console.log('dashboard api listening on port', PORT);
-  
-  console.log("getting container IP")
+  console.log("dashboard api v2");
 
   // save container IP in memory on startup
   SERVER.ip = await getContainerIp();
