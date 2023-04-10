@@ -10,6 +10,9 @@ import { useEffect, useState } from "react";
 import DailyOverviewMetrics from "~/components/DailyOverview";
 
 const Dashboard = () => {
+  const latestConnections = useLoaderData() as Awaited<Connection[]>
+
+
   const infoCards: InfoCardInterface[] = [
     {
       id: 1,

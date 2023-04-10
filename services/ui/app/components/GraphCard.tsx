@@ -48,7 +48,7 @@ export default function GraphCard({ metricName, metricData }: GraphCardProps) {
         </div>
       </div>
       <div>
-        <Line data={data} options={options}></Line>
+        <Line data={viewableData} options={options}></Line>
       </div>
     </div>
   );
