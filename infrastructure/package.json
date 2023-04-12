@@ -2,10 +2,12 @@
   "name": "sym-auto-core",
   "version": "0.1.0",
   "bin": {
-    "sym-auto-core": "bin/sym-auto-core.js"
+    "sym-auto-core": "bin/sym-auto-core.js",
+    "symphony": "ts-node ./cli/index.js"
   },
   "scripts": {
     "build": "tsc",
+    "clean": "tsc --build --clean",
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk"
@@ -20,10 +22,10 @@
     "typescript": "~4.9.5"
   },
   "dependencies": {
+    "dotenv": "^16.0.3",
     "aws-cdk-lib": "2.68.0",
     "commander": "^10.0.0",
     "constructs": "^10.0.0",
-    "dotenv": "^16.0.3",
     "source-map-support": "^0.5.21",
     "chalk": "^4.1.2",
     "inquirer": "^8.2.5",
