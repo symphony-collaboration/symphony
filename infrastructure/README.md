@@ -18,7 +18,6 @@ Requires a hosted zone for your domain: `DOMAIN`
 ### Deploy 
 run `cdk deploy`
 
-
 Stack deploys the following resources:
   - ACM certificate
   - Route53 Record
@@ -45,6 +44,5 @@ Stack deploys the following resources:
 
 
 To remove all infrastructure: `cdk destroy`
-- NOTE: S3 bucket must be empty
 
     
