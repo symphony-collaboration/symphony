@@ -19,6 +19,10 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as cr from 'aws-cdk-lib/custom-resources';
 
+import * as events from 'aws-cdk-lib/aws-events';
+import * as targets from 'aws-cdk-lib/aws-events-targets';
+import * as lambda from 'aws-cdk-lib/aws-lambda';
+
 import * as dotenv from "dotenv"
 dotenv.config();
 
@@ -60,12 +64,12 @@ export class SymAutoCoreStack extends cdk.Stack {
     });
 
     // Create a new ALB
-    const loadBalancer = new alb.ApplicationLoadBalancer(this, 'SymSecureALB', {
+    const loadBalancer = new alb.ApplicationLoadBalancer(this, 'SymphonySecureALB', {
       vpc,
       internetFacing: true,
       securityGroup: new ec2.SecurityGroup(this, "SymSecureALB-SG", {vpc})
     });
-
+    
     // Route traffic hitting api.DOMAIN to the Application Load Balancer
     new route53.ARecord(this, `${API}.${DOMAIN}-zone`, {
       recordName: API,
@@ -85,8 +89,8 @@ export class SymAutoCoreStack extends cdk.Stack {
 
     // pubSub fargate task definition
     const pubSubTask = new ecs.FargateTaskDefinition(this, 'SymphonyPubSubTask', {
-      memoryLimitMiB: 512,
-      cpu: 256,
+      memoryLimitMiB: 4096,
+      cpu: 1024,
       executionRole: new iam.Role(this, 'SymphonyTaskExecutionRole', {
         assumedBy: new iam.ServicePrincipal('ecs-tasks.amazonaws.com'),
       })
@@ -101,10 +105,10 @@ export class SymAutoCoreStack extends cdk.Stack {
     const pubSubService = new ecs.FargateService(this, 'SymphonyPubSubService', {
       cluster: pubSubCluster,
       taskDefinition: pubSubTask,
-      desiredCount: 2,
+      desiredCount: 3,
       securityGroups: [
         pubSubSG
-      ]
+      ],
     })
 
     const metadataStorageSG = new ec2.SecurityGroup(this, 'SymphonyMetadataStorage-SG', {
@@ -117,7 +121,7 @@ export class SymAutoCoreStack extends cdk.Stack {
       engine: rds.DatabaseInstanceEngine.postgres({
         version: rds.PostgresEngineVersion.VER_12_7,
       }),
-      instanceType: ec2.InstanceType.of(ec2.InstanceClass.T2, ec2.InstanceSize.MICRO),
+      instanceType: ec2.InstanceType.of(ec2.InstanceClass.M6G, ec2.InstanceSize.XLARGE),
       vpc,
       allocatedStorage: 20,
       securityGroups: [
@@ -133,6 +137,7 @@ export class SymAutoCoreStack extends cdk.Stack {
       versioned: true,
       encryption: s3.BucketEncryption.S3_MANAGED,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
+      autoDeleteObjects: true,
     });
 
     // allow ecs tasks to read and write to the new s3 bucket
@@ -147,24 +152,54 @@ export class SymAutoCoreStack extends cdk.Stack {
       tableName: 'SymphonyDocumentStateLocations',
       partitionKey: {name: 'id', type: dynamodb.AttributeType.STRING},
       removalPolicy: cdk.RemovalPolicy.DESTROY,
+      readCapacity: 5,
+      writeCapacity: 5
     })
+
+    // Configure auto-scaling for read capacity
+    const readScaling = docIpsTable.autoScaleReadCapacity({
+      minCapacity: 5,
+      maxCapacity: 100,
+    });
+
+    readScaling.scaleOnUtilization({
+      targetUtilizationPercent: 70,
+      scaleInCooldown: cdk.Duration.minutes(2),
+      scaleOutCooldown: cdk.Duration.minutes(5),
+    });
+
+    // Configure auto-scaling for write capacity
+    const writeScaling = docIpsTable.autoScaleWriteCapacity({
+      minCapacity: 5,
+      maxCapacity: 100,
+    });
+
+    writeScaling.scaleOnUtilization({
+      targetUtilizationPercent: 70,
+      scaleInCooldown: cdk.Duration.minutes(2),
+      scaleOutCooldown: cdk.Duration.minutes(5),
+    });
 
     const redisSubnetGroup = new elasticache.CfnSubnetGroup(this, 'RedisSubnetGroup', {
       description: 'Subnet group for Redis cluster',
       subnetIds: vpc.privateSubnets.map(subnet => subnet.subnetId),
-    })
+    });
 
     const redisSG = new ec2.SecurityGroup(this, 'SymphonyRedis-SG', {
       vpc,
       allowAllOutbound: true,
     })
-    // internal pub sub service
-    const redis = new elasticache.CfnCacheCluster(this, 'SymphonyRedisCluster', {
-      cacheNodeType: 'cache.t2.micro',
+
+    const redis = new elasticache.CfnReplicationGroup(this, "SymphonyReplicationGroup", {
+      replicationGroupDescription: "Symphony replication group",
       engine: 'redis',
-      numCacheNodes: 1,
-      vpcSecurityGroupIds: [redisSG.securityGroupId],
+      cacheNodeType: 'cache.t3.medium',
+      numNodeGroups: 1,
+      replicasPerNodeGroup: 2,
+      automaticFailoverEnabled: true,
+      multiAzEnabled: true,
       cacheSubnetGroupName: redisSubnetGroup.ref,
+      securityGroupIds: [redisSG.securityGroupId],
     });
 
     // get rds connection info
@@ -188,7 +223,8 @@ export class SymAutoCoreStack extends cdk.Stack {
         'DASHBOARD_PORT': DASHBOARD_PORT,
         'DASHBOARD_SERVICE': DASHBOARD_SERVICE,
         'DASHBOARD_CLUSTER': DASHBOARD_CLUSTER,
-        'REDIS_HOST': redis.attrRedisEndpointAddress,
+
+        'REDIS_HOST': redis.attrPrimaryEndPointAddress,
         'REDIS_PORT': '6379',
         'DYNAMO_TABLE': docIpsTable.tableName,
         'BUCKET': persitentStorage.bucketName,
@@ -211,6 +247,13 @@ export class SymAutoCoreStack extends cdk.Stack {
       protocol: alb.ApplicationProtocol.HTTP,
       targetType: alb.TargetType.IP,
       port: Number(WS_PORT),
+      deregistrationDelay: Duration.minutes(0),
+      loadBalancingAlgorithmType: alb.TargetGroupLoadBalancingAlgorithmType.LEAST_OUTSTANDING_REQUESTS,
+      healthCheck: {
+        interval: Duration.seconds(10),
+        path: "/"
+      }
+      // stickinessCookieDuration: Duration.hours(1.5), 
     });
 
     // add pubSubService to target group
@@ -225,7 +268,7 @@ export class SymAutoCoreStack extends cdk.Stack {
         permanent: true,
       })
     })
-
+    
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////// CREATE DASHBOARD API SERVICE ///////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -256,7 +299,7 @@ export class SymAutoCoreStack extends cdk.Stack {
       serviceName: DASHBOARD_SERVICE,
     })
 
-    const dashboardContainer = dashboardTask.addContainer("SymDashboardContainer", {
+    const dashboardContainer = dashboardTask.addContainer("SymphonyDashboardContainer", {
       image: ecs.ContainerImage.fromRegistry(DASHBOARD_IMAGE),
       environment: {
         'PORT': DASHBOARD_PORT,
@@ -266,6 +309,8 @@ export class SymAutoCoreStack extends cdk.Stack {
         'WS_SERVICE': pubSubService.serviceName,
         'WS_PORT': WS_PORT,
         'METADATA_DB_URL': prismaConnectionString,
+        
+        'BUCKET': persitentStorage.bucketName,
       },
       logging: new ecs.AwsLogDriver({
         streamPrefix: 'SymphonyDashboardLogs',
@@ -283,6 +328,7 @@ export class SymAutoCoreStack extends cdk.Stack {
       protocol: alb.ApplicationProtocol.HTTP,
       targetType: alb.TargetType.IP,
       port: +DASHBOARD_PORT,
+      deregistrationDelay: Duration.minutes(0)
     })
 
     dashboardTG.addTarget(dashboardService);
@@ -295,8 +341,9 @@ export class SymAutoCoreStack extends cdk.Stack {
     const httpsListener = loadBalancer.addListener('httpsListener', {
       port: 443,
       certificates: [acm.Certificate.fromCertificateArn(this, 'SymCert', certificate.certificateArn)],
-      defaultAction: alb.ListenerAction.forward([pubSubTargetGroup])
+      defaultAction: alb.ListenerAction.forward([pubSubTargetGroup]),
     })
+
 
     httpsListener.addAction('Dashboard API', {
       priority: 1,
@@ -321,6 +368,8 @@ export class SymAutoCoreStack extends cdk.Stack {
     
     // allow custom WS servers to read and write to persistence
     persitentStorage.grantReadWrite(pubSubService.taskDefinition.taskRole);
+    // allow dashboard for viewing room state
+    persitentStorage.grantReadWrite(dashboardService.taskDefinition.taskRole);
 
     // allow custom WS servers to read and write to ip address storage
     docIpsTable.grantReadWriteData(pubSubService.taskDefinition.taskRole);
@@ -418,8 +467,80 @@ export class SymAutoCoreStack extends cdk.Stack {
           resources: cr.AwsCustomResourcePolicy.ANY_RESOURCE,
         })
       ])
-    })
+    });
 
     metadataStorageSG.addIngressRule(initRdsSG, ec2.Port.tcp(5432), "Allow init rds container to connect to metadata rds db instance")
+  
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////// Scaling Configuration ///////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // auto-scale configuration
+    const scalePubSub = pubSubService.autoScaleTaskCount({minCapacity: 3, maxCapacity: 15});
+
+    scalePubSub.scaleOnCpuUtilization('CpuScaling', {
+      targetUtilizationPercent: 50,
+      scaleInCooldown: Duration.seconds(15),
+      scaleOutCooldown: Duration.seconds(300),
+    });
+
+    scalePubSub.scaleOnMemoryUtilization('MemoryScaling', {
+      targetUtilizationPercent: 50,
+      scaleInCooldown: Duration.seconds(30),
+      scaleOutCooldown: Duration.minutes(1),
+    });
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////// Cleanup function to remove server IP from dynamo table on task failure ///////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    const cleanupRole = new iam.Role(this, 'SymphonyWsCleanupRole', {
+      assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com')
+    });
+
+    cleanupRole.addToPolicy(new iam.PolicyStatement({
+      actions: ['dynamodb:UpdateItem', 'dynamodb:Scan', `dynamodb:DeleteItem`],
+      resources: [docIpsTable.tableArn]
+    }));
+
+    cleanupRole.addToPolicy(new iam.PolicyStatement({
+      actions: ['logs:CreateLogGroup', 'logs:CreateLogStream', 'logs:PutLogEvents'],
+      resources: ['arn:aws:logs:*:*:*']
+    }))
+
+    const cleanupFunction = new lambda.Function(this, 'SymphonyWsFailCleanup', {
+      runtime: lambda.Runtime.NODEJS_18_X,
+      handler: 'cleanup.handler',
+      code: lambda.Code.fromAsset('lambda'),
+      role: cleanupRole,
+      environment: {
+        TABLE: docIpsTable.tableName,
+        REGION: this.region,
+      },
+      logRetention: logs.RetentionDays.ONE_DAY,
+      timeout: Duration.minutes(10),
+      memorySize: 256,
+    })
+
+    const eventPattern = {
+      source: ['aws.ecs'],
+      detailType: ['ECS Task State Change'],
+      detail: {
+        group: [`service:${pubSubService.serviceName}`],
+        lastStatus: ["STOPPED"],
+        stoppedReason: [{
+          "anything-but": {
+            prefix: "Scaling activity initiated by (deployment"
+          }
+        }],
+      },
+    }
+
+    new events.Rule(this, 'SymphonyWsCleanupRule', {
+      eventPattern,
+      targets: [new targets.LambdaFunction(cleanupFunction)],
+      description: "Invoke cleanup lambda to remove ip address from dynamodb on task failure"
+    });
   }
 }
