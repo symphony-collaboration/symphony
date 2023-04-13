@@ -105,7 +105,7 @@ export class SymAutoCoreStack extends cdk.Stack {
     const pubSubService = new ecs.FargateService(this, 'SymphonyPubSubService', {
       cluster: pubSubCluster,
       taskDefinition: pubSubTask,
-      desiredCount: 3,
+      desiredCount: 5,
       securityGroups: [
         pubSubSG
       ],
@@ -155,30 +155,6 @@ export class SymAutoCoreStack extends cdk.Stack {
       readCapacity: 5,
       writeCapacity: 5
     })
-
-    // Configure auto-scaling for read capacity
-    const readScaling = docIpsTable.autoScaleReadCapacity({
-      minCapacity: 5,
-      maxCapacity: 100,
-    });
-
-    readScaling.scaleOnUtilization({
-      targetUtilizationPercent: 70,
-      scaleInCooldown: cdk.Duration.minutes(2),
-      scaleOutCooldown: cdk.Duration.minutes(5),
-    });
-
-    // Configure auto-scaling for write capacity
-    const writeScaling = docIpsTable.autoScaleWriteCapacity({
-      minCapacity: 5,
-      maxCapacity: 100,
-    });
-
-    writeScaling.scaleOnUtilization({
-      targetUtilizationPercent: 70,
-      scaleInCooldown: cdk.Duration.minutes(2),
-      scaleOutCooldown: cdk.Duration.minutes(5),
-    });
 
     const redisSubnetGroup = new elasticache.CfnSubnetGroup(this, 'RedisSubnetGroup', {
       description: 'Subnet group for Redis cluster',
@@ -472,11 +448,11 @@ export class SymAutoCoreStack extends cdk.Stack {
     metadataStorageSG.addIngressRule(initRdsSG, ec2.Port.tcp(5432), "Allow init rds container to connect to metadata rds db instance")
   
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////// Scaling Configuration ///////////////////////////////////////
+    /////////////////////////////////////// Auto-scale Configuration ///////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // auto-scale configuration
-    const scalePubSub = pubSubService.autoScaleTaskCount({minCapacity: 3, maxCapacity: 15});
+    const scalePubSub = pubSubService.autoScaleTaskCount({minCapacity: 5, maxCapacity: 100});
 
     scalePubSub.scaleOnCpuUtilization('CpuScaling', {
       targetUtilizationPercent: 50,
@@ -490,6 +466,29 @@ export class SymAutoCoreStack extends cdk.Stack {
       scaleOutCooldown: Duration.minutes(1),
     });
 
+    // Configure auto-scaling for read capacity
+    const readScaling = docIpsTable.autoScaleReadCapacity({
+      minCapacity: 5,
+      maxCapacity: 100,
+    });
+
+    readScaling.scaleOnUtilization({
+      targetUtilizationPercent: 70,
+      scaleInCooldown: cdk.Duration.minutes(2),
+      scaleOutCooldown: cdk.Duration.minutes(5),
+    });
+
+    // Configure auto-scaling for write capacity
+    const writeScaling = docIpsTable.autoScaleWriteCapacity({
+      minCapacity: 5,
+      maxCapacity: 100,
+    });
+
+    writeScaling.scaleOnUtilization({
+      targetUtilizationPercent: 70,
+      scaleInCooldown: cdk.Duration.minutes(2),
+      scaleOutCooldown: cdk.Duration.minutes(5),
+    });
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////// Cleanup function to remove server IP from dynamo table on task failure ///////////////////////////////////////
@@ -537,7 +536,7 @@ export class SymAutoCoreStack extends cdk.Stack {
       },
     }
 
-    new events.Rule(this, 'SymphonyWsCleanupRule', {
+    new events.Rule(this, 'SymphonyWsFailureCleanupRule', {
       eventPattern,
       targets: [new targets.LambdaFunction(cleanupFunction)],
       description: "Invoke cleanup lambda to remove ip address from dynamodb on task failure"
