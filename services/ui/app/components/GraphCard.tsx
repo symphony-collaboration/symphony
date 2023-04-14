@@ -16,10 +16,8 @@ interface GraphCardProps {
 }
 
 export default function GraphCard({ metricName, metricData }: GraphCardProps) {
-
   const timeLabels = getTimeLabels();
 
-  console.log({timeLabels})
   const data = {
     labels: timeLabels,
     datasets: [
