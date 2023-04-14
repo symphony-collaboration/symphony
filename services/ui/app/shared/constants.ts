@@ -1,5 +1,4 @@
 const domain = process.env.DOMAIN || "your-domain.com";
-console.log({domain});
 
 export const SYMPHONY_API = `https://${domain}/api`;
 export const SYMPHONY_WS_URL = `wss://${domain}`;
