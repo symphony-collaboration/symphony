@@ -19,8 +19,7 @@ interface LiveConnectionsProps {
 const connectionEventsUrl = `${SYMPHONY_API}/events`;
 
 export default function LiveConnections({onRoomInspect, inspectingRoom}:LiveConnectionsProps) {
-  // const [sorting, setSorting] = useState<SortingState>([]);
-  // const [inspectingRoom, setInspectingRoom] = useState("");
+
   const conns = useEventSource(connectionEventsUrl);
 
   const rooms = [];
