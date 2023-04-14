@@ -58,7 +58,6 @@ const columns = (onRoomSelect: any, inspecting: string) => [
                 Hide
               </a>
             </span>
-            {/* <RoomStateView room={room}/> */}
           </div>
         )
       }
