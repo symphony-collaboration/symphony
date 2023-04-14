@@ -42,7 +42,7 @@ const Dashboard = () => {
   const fetchDailyOverviewMetrics = async() => {
     const hour = getCurrent24HrTime().split(":")[0];
     const apiUrl = `${SYMPHONY_API}/connections/since_yesterday/${hour}`;
-    
+
     try {
       const res = await fetch(apiUrl);  
       const connections = await res.json();
