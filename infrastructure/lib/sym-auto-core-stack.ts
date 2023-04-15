@@ -43,12 +43,14 @@ const DASHBOARD_CLUSTER = process.env.SYM_DASHBOARD_CLUSTER_NAME || "no dashboar
 
 const metadataStorageDbname = process.env.SYM_METADATA_DB_NAME || "no metadata db nam env";
 
-export class SymAutoCoreStack extends cdk.Stack {
+const project = process.env.PROJECT ||  "SymphonyDefault";
+
+class SymAutoCoreStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
     // Create a new VPC - w/ sensible cdk defaults
-    const vpc = new ec2.Vpc(this, 'SymphonyVpc', {
+    const vpc = new ec2.Vpc(this, project + 'Vpc', {
       maxAzs: 2,
     });
 
@@ -64,10 +66,10 @@ export class SymAutoCoreStack extends cdk.Stack {
     });
 
     // Create a new ALB
-    const loadBalancer = new alb.ApplicationLoadBalancer(this, 'SymphonySecureALB', {
+    const loadBalancer = new alb.ApplicationLoadBalancer(this, project + 'SecureALB', {
       vpc,
       internetFacing: true,
-      securityGroup: new ec2.SecurityGroup(this, "SymSecureALB-SG", {vpc})
+      securityGroup: new ec2.SecurityGroup(this, project + "SecureALB-SG", {vpc})
     });
     
     // Route traffic hitting api.DOMAIN to the Application Load Balancer
@@ -83,26 +85,26 @@ export class SymAutoCoreStack extends cdk.Stack {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // cluster for our custom WS
-    const pubSubCluster = new ecs.Cluster(this, 'SymphonyPubSub', {
+    const pubSubCluster = new ecs.Cluster(this, project + 'PubSub', {
       vpc,
     });
 
     // pubSub fargate task definition
-    const pubSubTask = new ecs.FargateTaskDefinition(this, 'SymphonyPubSubTask', {
+    const pubSubTask = new ecs.FargateTaskDefinition(this, project + 'PubSubTask', {
       memoryLimitMiB: 4096,
       cpu: 1024,
-      executionRole: new iam.Role(this, 'SymphonyTaskExecutionRole', {
+      executionRole: new iam.Role(this, project + 'TaskExecutionRole', {
         assumedBy: new iam.ServicePrincipal('ecs-tasks.amazonaws.com'),
       })
     })
 
     // pubsub security group
-    const pubSubSG = new ec2.SecurityGroup(this, 'SymphonyPubSub-SG', {
+    const pubSubSG = new ec2.SecurityGroup(this, project + 'PubSub-SG', {
       vpc,
       allowAllOutbound: true,
     });
 
-    const pubSubService = new ecs.FargateService(this, 'SymphonyPubSubService', {
+    const pubSubService = new ecs.FargateService(this, project + 'PubSubService', {
       cluster: pubSubCluster,
       taskDefinition: pubSubTask,
       desiredCount: 5,
@@ -111,13 +113,13 @@ export class SymAutoCoreStack extends cdk.Stack {
       ],
     })
 
-    const metadataStorageSG = new ec2.SecurityGroup(this, 'SymphonyMetadataStorage-SG', {
+    const metadataStorageSG = new ec2.SecurityGroup(this, project + 'MetadataStorage-SG', {
       vpc,
       allowAllOutbound: true,
     });
 
     // Create an RDS database
-    const metadataStorage = new rds.DatabaseInstance(this, 'SymphonyMetadata', {
+    const metadataStorage = new rds.DatabaseInstance(this, project + 'Metadata', {
       engine: rds.DatabaseInstanceEngine.postgres({
         version: rds.PostgresEngineVersion.VER_12_7,
       }),
@@ -133,7 +135,7 @@ export class SymAutoCoreStack extends cdk.Stack {
     });
     
     // Create an S3 bucket
-    const persitentStorage = new s3.Bucket(this, 'SymphonyPeristence', {
+    const persitentStorage = new s3.Bucket(this, project + 'Peristence', {
       versioned: true,
       encryption: s3.BucketEncryption.S3_MANAGED,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
@@ -148,8 +150,8 @@ export class SymAutoCoreStack extends cdk.Stack {
     }))
 
     // Create a DynamoDB table
-    const docIpsTable = new dynamodb.Table(this, 'SymphonyDocumentLocations', {
-      tableName: 'SymphonyDocumentStateLocations',
+    const docIpsTable = new dynamodb.Table(this, project + 'DocumentLocations', {
+      tableName: project + 'DocumentStateLocations',
       partitionKey: {name: 'id', type: dynamodb.AttributeType.STRING},
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       readCapacity: 5,
@@ -161,13 +163,13 @@ export class SymAutoCoreStack extends cdk.Stack {
       subnetIds: vpc.privateSubnets.map(subnet => subnet.subnetId),
     });
 
-    const redisSG = new ec2.SecurityGroup(this, 'SymphonyRedis-SG', {
+    const redisSG = new ec2.SecurityGroup(this, project + 'Redis-SG', {
       vpc,
       allowAllOutbound: true,
     })
 
-    const redis = new elasticache.CfnReplicationGroup(this, "SymphonyReplicationGroup", {
-      replicationGroupDescription: "Symphony replication group",
+    const redis = new elasticache.CfnReplicationGroup(this, project + 'ReplicationGroup', {
+      replicationGroupDescription: project + ' elasticache replication group',
       engine: 'redis',
       cacheNodeType: 'cache.t3.medium',
       numNodeGroups: 1,
@@ -190,7 +192,7 @@ export class SymAutoCoreStack extends cdk.Stack {
     const prismaConnectionString = `postgresql://${metadataStorageUsername}:${metadataStoragePassword}@${metadataStorageHost}:${metadataStoragePort}/${metadataStorageDbname}?schema=public`;
     
     // container for pubsub task
-    const pubSubContainer = pubSubTask.addContainer("SymPubSubContainer", {
+    const pubSubContainer = pubSubTask.addContainer(project + "PubSubContainer", {
       image: ecs.ContainerImage.fromRegistry(WS_IMAGE),
       environment: {
         'PORT': WS_PORT,
@@ -207,7 +209,7 @@ export class SymAutoCoreStack extends cdk.Stack {
         'METADATA_DB_URL': prismaConnectionString,
       },
       logging: new ecs.AwsLogDriver({
-        streamPrefix: 'SymphonyPubSub',
+        streamPrefix: project + 'PubSub',
         logRetention: logs.RetentionDays.ONE_DAY,
       })
     })
@@ -249,25 +251,25 @@ export class SymAutoCoreStack extends cdk.Stack {
     /////////////////////////////////////// CREATE DASHBOARD API SERVICE ///////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    const dashboardCluster = new ecs.Cluster(this, 'SymphonyDashboard', {
+    const dashboardCluster = new ecs.Cluster(this, project + 'Dashboard', {
       vpc,
       clusterName: DASHBOARD_CLUSTER,
     });
 
-    const dashboardSG = new ec2.SecurityGroup(this, 'SymphonyDashboard-SG', {
+    const dashboardSG = new ec2.SecurityGroup(this, project + 'Dashboard-SG', {
       vpc,
       allowAllOutbound: true
     })
 
-    const dashboardTask = new ecs.FargateTaskDefinition(this, 'SymphonyDashboardTask', {
+    const dashboardTask = new ecs.FargateTaskDefinition(this, project + 'DashboardTask', {
       memoryLimitMiB: 512,
       cpu: 256,
-      executionRole: new iam.Role(this, 'SymphonyDashboardTaskExecutionRole', {
+      executionRole: new iam.Role(this, project + 'DashboardTaskExecutionRole', {
         assumedBy: new iam.ServicePrincipal('ecs-tasks.amazonaws.com'),
       })
     })
 
-    const dashboardService = new ecs.FargateService(this, "SymphonyDashboardService", {
+    const dashboardService = new ecs.FargateService(this, project + 'DashboardService', {
       cluster: dashboardCluster,
       taskDefinition: dashboardTask,
       desiredCount: 1,
@@ -275,7 +277,7 @@ export class SymAutoCoreStack extends cdk.Stack {
       serviceName: DASHBOARD_SERVICE,
     })
 
-    const dashboardContainer = dashboardTask.addContainer("SymphonyDashboardContainer", {
+    const dashboardContainer = dashboardTask.addContainer(project + 'DashboardContainer', {
       image: ecs.ContainerImage.fromRegistry(DASHBOARD_IMAGE),
       environment: {
         'PORT': DASHBOARD_PORT,
@@ -289,7 +291,7 @@ export class SymAutoCoreStack extends cdk.Stack {
         'BUCKET': persitentStorage.bucketName,
       },
       logging: new ecs.AwsLogDriver({
-        streamPrefix: 'SymphonyDashboardLogs',
+        streamPrefix: project + 'DashboardLogs',
         logRetention: logs.RetentionDays.ONE_DAY,
       })
     });
@@ -299,7 +301,7 @@ export class SymAutoCoreStack extends cdk.Stack {
       protocol: ecs.Protocol.TCP,
     })
 
-    const dashboardTG = new alb.ApplicationTargetGroup(this, 'SymphonyDashboard-TG', {
+    const dashboardTG = new alb.ApplicationTargetGroup(this, project + 'Dashboard-TG', {
       vpc,
       protocol: alb.ApplicationProtocol.HTTP,
       targetType: alb.TargetType.IP,
@@ -316,7 +318,7 @@ export class SymAutoCoreStack extends cdk.Stack {
     // add https listener to load balancer, setting the pubSubService Target group as default
     const httpsListener = loadBalancer.addListener('httpsListener', {
       port: 443,
-      certificates: [acm.Certificate.fromCertificateArn(this, 'SymCert', certificate.certificateArn)],
+      certificates: [acm.Certificate.fromCertificateArn(this, `${API}.${DOMAIN}-` + 'Certificate', certificate.certificateArn)],
       defaultAction: alb.ListenerAction.forward([pubSubTargetGroup]),
     })
 
@@ -392,7 +394,7 @@ export class SymAutoCoreStack extends cdk.Stack {
     const initRdsTask = new ecs.FargateTaskDefinition(this, 'InitRdsSchema', {
       memoryLimitMiB: 512,
       cpu: 256,
-      executionRole: new iam.Role(this, 'SymphonyInitRdsTask', {
+      executionRole: new iam.Role(this, project + 'InitRdsTask', {
         assumedBy: new iam.ServicePrincipal('ecs-tasks.amazonaws.com'),
       })
     })
@@ -403,7 +405,7 @@ export class SymAutoCoreStack extends cdk.Stack {
         'METADATA_DB_URL': prismaConnectionString,
       },
       logging: new ecs.AwsLogDriver({
-        streamPrefix: 'SymphonyInitRds',
+        streamPrefix: project + 'InitRds',
         logRetention: logs.RetentionDays.ONE_DAY,
       })
     });
@@ -494,7 +496,7 @@ export class SymAutoCoreStack extends cdk.Stack {
     /////////////////////////////////////// Cleanup function to remove server IP from dynamo table on task failure ///////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    const cleanupRole = new iam.Role(this, 'SymphonyWsCleanupRole', {
+    const cleanupRole = new iam.Role(this, project + 'WsCleanupRole', {
       assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com')
     });
 
@@ -508,7 +510,7 @@ export class SymAutoCoreStack extends cdk.Stack {
       resources: ['arn:aws:logs:*:*:*']
     }))
 
-    const cleanupFunction = new lambda.Function(this, 'SymphonyWsFailCleanup', {
+    const cleanupFunction = new lambda.Function(this, project + 'WsFailCleanup', {
       runtime: lambda.Runtime.NODEJS_18_X,
       handler: 'cleanup.handler',
       code: lambda.Code.fromAsset('lambda'),
@@ -536,10 +538,12 @@ export class SymAutoCoreStack extends cdk.Stack {
       },
     }
 
-    new events.Rule(this, 'SymphonyWsFailureCleanupRule', {
+    new events.Rule(this, project + 'WsFailureCleanupRule', {
       eventPattern,
       targets: [new targets.LambdaFunction(cleanupFunction)],
       description: "Invoke cleanup lambda to remove ip address from dynamodb on task failure"
     });
   }
 }
+
+export default SymAutoCoreStack;
