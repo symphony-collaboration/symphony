@@ -41,6 +41,7 @@ Stack deploys the following resources:
       - service
     - Custom AWS Resource to initialize RDS schema
       - task: only run once during cdk deployment 
+    - cleanup lambda functio to remove server ip from dynamo table in event of task failure
 
 
 To remove all infrastructure: `cdk destroy`
