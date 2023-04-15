@@ -5,3 +5,5 @@ node_modules
 /public/build
 .env
 notes.md
+
+package-lock.json

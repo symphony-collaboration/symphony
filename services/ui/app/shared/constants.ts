@@ -1,7 +1,7 @@
-const domain = process.env.DOMAIN || "your-domain.com";
+import { DOMAIN } from "~/domain";
 
-export const SYMPHONY_API = `https://${domain}/api`;
-export const SYMPHONY_WS_URL = `wss://${domain}`;
+export const SYMPHONY_API = `https://${DOMAIN}/api`;
+export const SYMPHONY_WS_URL = `wss://${DOMAIN}`;
 
 export const GRAPH_CARD_BLOCKS = 7
 
