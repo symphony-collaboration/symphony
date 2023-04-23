@@ -1,6 +1,6 @@
 {
   "name": "@symphony-rtc/client",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "description": "Front-end client package for the Symphony real-time collaboration framework",
   "main": "index.js",
   "type": "module",
