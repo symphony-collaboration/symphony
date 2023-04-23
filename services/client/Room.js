@@ -63,8 +63,6 @@ class Room {
     });
   }
 
-  // Gets all the other users in the Room.
-  // [currently this returns all users including the client, like yjs does]
   /** Returns all other users in the Room.*/
   getOthers() {
     return this.#wsProvider.awareness.getStates();
