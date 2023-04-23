@@ -28,7 +28,7 @@ The tool will deploy the websocket url endpoint to a subdomain
 ## Commands
 
 There are 4 main commands: type the command followed by the `-h` flag to display the details and options of each command
-  - compose: deploys infrastructure
-  - destroy: destroy infrastructure
-  - dashboard: deploy local dashboard
-  - update: update configurtion variables
+  - `compose`: deploys infrastructure
+  - `destroy`: destroy infrastructure
+  - `dashboard`: deploy local dashboard
+  - `update`: update configurtion variables
