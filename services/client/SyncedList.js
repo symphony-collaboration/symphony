@@ -152,7 +152,6 @@ class SyncedList {
     return result;
   }
 
-  // Not sure how this should work when newIndex > oldIndex. Test with LB?
   /** Moves the element at a specified index of the SyncedList to a new index. 
    * @param {number} oldIndex - The index of the element to be moved.
    * @param {number} newIndex - The index to where the element will be moved.
