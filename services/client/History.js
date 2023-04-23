@@ -1,6 +1,5 @@
 import * as Y from 'yjs';
 
-//yjs
 /** @ignore */
 class DeleteSet {
   constructor () {
@@ -8,7 +7,6 @@ class DeleteSet {
   }
 }
 
-//yjs
 /** @ignore */
 const sortAndMergeDeleteSet = ds => {
   ds.clients.forEach(dels => {
@@ -29,7 +27,6 @@ const sortAndMergeDeleteSet = ds => {
   })
 }
 
-//yjs
 /** @ignore */
 const mergeDeleteSets = dss => {
   const merged = new DeleteSet()
@@ -56,7 +53,6 @@ class History {
   #undoManager;
   #pausedIndex;
 
-  // implement something like yjs trackedOrigins? 
   constructor(syncedType, captureTimeout=0) {
     this.#undoManager = new Y.UndoManager(syncedType, {captureTimeout});
     this.#pausedIndex = null;
@@ -99,8 +95,6 @@ class History {
     return this.#undoManager.redoStack.length > 0;
   }
 
-  // https://discuss.yjs.dev/t/captureall-method-for-undomanager/959
-
   /** Merges all subsequent operations into a single operation until <tt>stopMergingAll</tt> is called.*/
   mergeAll() {
     this.#pausedIndex = this.#undoManager.undoStack.length;
@@ -121,11 +115,6 @@ class History {
   clear() {
     this.#undoManager.clear();
   }
-
-//   undoManager.on('stack-item-added', {stackItem: { meta: Map<any,any>, type: 'undo'|'redo'}}
-//     Register an event that is called when a StackItem is added to the undo- or the redo-stack.
-//   undoManager.on('stack-item-popped', { stackItem: { meta: Map<any,any> }, type: 'undo' | 'redo' })
-//     Register an event that is called when a StackItem is popped from the undo- or the redo-stack.
 }
 
 export default History;
