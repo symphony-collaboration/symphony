@@ -63,7 +63,6 @@ class SyncedMap {
     this.#values.clear();
   }
   
-  // yjs
   /** Returns a JSON representation of the SyncedMap.*/
   toJSON() {
     return this.#values.toJSON();
