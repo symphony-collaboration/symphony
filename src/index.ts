@@ -3,7 +3,9 @@
 import { Command } from "commander";
 import * as fs from "fs";
 import * as path from "path";
+import { fileURLToPath } from "url";
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const pathToCommands = path.join(__dirname, "./commands");
 const program = new Command();
 program.version("0.0.1");
@@ -20,7 +22,7 @@ const setCommands = async () => {
   );
 
   commands.forEach((importedClass) => {
-    const c = new importedClass.default.default();
+    const c = new importedClass.default();
 
     const command = program.command(c.name).description(c.description);
 
