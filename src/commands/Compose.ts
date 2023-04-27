@@ -1,4 +1,8 @@
-import { exec, assertDependencies, assertGCloudAuth } from "../utils/helpers.js";
+import {
+  exec,
+  assertDependencies,
+  assertGCloudAuth,
+} from "../utils/helpers.js";
 import Spinner from "../utils/spinner.js";
 import Command from "./AbstractCommand.js";
 
@@ -24,11 +28,11 @@ class Compose extends Command {
 
     try {
       await assertDependencies(spinner);
-      await assertGCloudAuth(spinner)
+      await assertGCloudAuth(spinner);
+      await scaffoldProject(spinner);
     } catch (error) {
-      throw new Error(error)
+      throw new Error(error);
     }
-
 
     // create required scaffold files accounting for template
 

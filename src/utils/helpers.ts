@@ -29,18 +29,22 @@ const dependencies = [
   {
     dependency: "terraform",
     errorMessage:
-      "Terraform CLI is not installed. Please install it at https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli",
+      "Terraform CLI is not installed. For further guidance, see https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli",
   },
   {
     dependency: "cdktf",
     errorMessage:
-      "Terraform CDKTF is not installed. Please install it at https://developer.hashicorp.com/terraform/tutorials/cdktf/cdktf-install",
+      "Terraform CDKTF is not installed. For further guidance, see https://developer.hashicorp.com/terraform/tutorials/cdktf/cdktf-install",
   },
   {
     dependency: "gcloud",
     errorMessage:
-      "gcloud is not installed. Please install it at https://cloud.google.com/sdk/docs/install",
+      "gcloud is not installed. For further guidance, see https://cloud.google.com/sdk/docs/install",
   },
+  {
+    dependency: "kubectl",
+    errorMessage: "kubectl is not installed. For further guidance, see https://kubernetes.io/docs/tasks/tools/"
+  }
 ];
 
 const assertDependencies = async (spinner: Spinner) => {
