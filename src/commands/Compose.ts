@@ -1,4 +1,4 @@
-import { exec } from "../utils/helpers.js";
+import { exec, assertDependencies, assertGCloudAuth } from "../utils/helpers.js";
 import Spinner from "../utils/spinner.js";
 import Command from "./AbstractCommand.js";
 
@@ -22,59 +22,13 @@ class Compose extends Command {
 
     // check dependencies
 
-    spinner.start("Checking dependencies...");
-
-    exec("terraform --version").catch(() => {
-      throw new Error(
-        "Terraform CLI is not installed. Please install it at https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli"
-      );
-    });
-
-    exec("cdktf --version").catch(() => {
-      throw new Error(
-        "Terraform CDKTF is not installed. Please install it at https://developer.hashicorp.com/terraform/tutorials/cdktf/cdktf-install"
-      );
-    });
-
-    exec("gcloud --version").catch(() => {
-      throw new Error(
-        "gcloud is not installed. Please install it at https://cloud.google.com/sdk/docs/install"
-      );
-    });
-
-    exec("gcloud init --console-only").catch(() => {
-      throw new Error(
-        "Could not authenticate gcloud. Please manually authenticate and try again."
-      );
-    });
-
-    spinner.succeed("Dependencies Verified");
-
-    // provision cluster
-
-    spinner.start("Creating cluster...");
-
     try {
-      await exec("cdktf plan infra", { cwd: "../../" });
+      await assertDependencies(spinner);
+      await assertGCloudAuth(spinner)
     } catch (error) {
-      throw new Error(`Could not create cluster: ${error}`);
+      throw new Error(error)
     }
 
-    spinner.succeed("Cluster created");
-
-    // deploy application on cluster
-
-    spinner.start("Deploying server and setting permissions...");
-
-    try {
-      await exec(`cdktf plan production --var=domainName=${domainName}`, {
-        cwd: "../../",
-      });
-    } catch (error) {
-      throw new Error(`Could not deploy server: ${error}`);
-    }
-
-    spinner.succeed("Deployment successful");
 
     // create required scaffold files accounting for template
 
