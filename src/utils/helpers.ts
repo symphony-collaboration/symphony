@@ -1,6 +1,8 @@
 import { promisify } from "util";
 import * as child_process from "child_process";
 import Spinner from "./spinner.js";
+import fs from "fs";
+import path from "path";
 
 const exec = promisify(child_process.exec);
 
@@ -43,8 +45,9 @@ const dependencies = [
   },
   {
     dependency: "kubectl",
-    errorMessage: "kubectl is not installed. For further guidance, see https://kubernetes.io/docs/tasks/tools/"
-  }
+    errorMessage:
+      "kubectl is not installed. For further guidance, see https://kubernetes.io/docs/tasks/tools/",
+  },
 ];
 
 const assertDependencies = async (spinner: Spinner) => {
@@ -85,7 +88,10 @@ const provisionBaselineInfrastructure = async (spinner: Spinner) => {
   spinner.succeed("Successfully provisioned symphony infrastructure");
 };
 
-const provisionApplicationInfrastructure = async (spinner: Spinner, domainName: string) => {
+const provisionApplicationInfrastructure = async (
+  spinner: Spinner,
+  domainName: string
+) => {
   spinner.start("Deploying server and setting permissions...");
 
   try {
@@ -99,10 +105,58 @@ const provisionApplicationInfrastructure = async (spinner: Spinner, domainName: 
   spinner.succeed("Deployment successful");
 };
 
+/*
+
+- create new directory
+- copy all files in template to new directory
+    - for each item in template
+        - copy file to target
+
+*/
+
+const scaffoldProject = (spinner: Spinner, projectName: string) => {
+  spinner.start("Scaffolding symphony project...");
+
+  const scaffoldDir = path.join(process.cwd(), projectName);
+  const templateDir = path.resolve(
+    import.meta.url,
+    "../..",
+    "template-vanilla"
+  );
+  const templateFiles = fs.readdirSync(templateDir);
+
+  fs.mkdirSync(scaffoldDir, { recursive: true });
+
+  templateFiles.forEach((file) => {
+    copy(path.join(templateDir, file), path.join(scaffoldDir, file));
+  });
+
+  spinner.succeed("Symphony project composition successfull");
+};
+
+const copy = (srcPath: string, targetPath: string) => {
+  const stat = fs.statSync(srcPath);
+
+  if (stat.isDirectory()) {
+    copyDir(srcPath, targetPath);
+  } else {
+    fs.copyFileSync(srcPath, targetPath);
+  }
+};
+
+const copyDir = (srcPath: string, targetPath: string) => {
+  fs.mkdirSync(targetPath, { recursive: true });
+
+  fs.readdirSync(srcPath).forEach((file) => {
+    copy(path.resolve(srcPath, file), path.resolve(targetPath, file));
+  });
+};
+
 export {
   exec,
   assertDependencies,
   assertGCloudAuth,
   provisionBaselineInfrastructure,
   provisionApplicationInfrastructure,
+  scaffoldProject,
 };
