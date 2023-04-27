@@ -34,19 +34,7 @@ Additionally, approach number 2 requires constantly updating the storage mechani
 With our approach, the server will update the ip addresses only when a document is loaded into memory or when it is removed.
 
 For the pub/sub mechanism we used a Redis cluster on AWS Elasticache. Elasticaches handles maintanence, high availability, and failover for Redis nodes.
+
 DynamoDB is used to store the `documentID` mappings to a collection of ip addresses. It is inexpensive, provides low latency, and integrates
-easily with AWS infrastructure.
-
-The decision to use DynamoDB along with the redis cluster came down to a few reasons:
-- Decoupling concerns
-  - store the session data away from the redis cluster
-- Redis Performance
-  - using redis to store more permanent data (ip addresess) is viable, and Redis will hold the data in memory.
-    In the event of a node failure, the data is lost, which is undesired. A workaround is to configure redis to
-    write the data to disk for durability and recovery. Redis provides 2 mechanism for this (RDB snapshotting or AOF append-only file).
-    
-    Ensuring the integrity of data however, will come at a performance cost, and the whole idea is to keep persistence away from 
-    the redis cluster. It should only be concerned with delivering messages, not holding data in memory.
-
-    Additionally, using an Elasticache Redis Cluster for pub/sub messaging only allows it to be used in non-cluster mode.
-    It can only have up to 6 nodes. (single or multi-leader replication)
+easily with AWS infrastructure, and decouples pub/sub messages with
+querying, updating, and deleting document locations

@@ -15,7 +15,7 @@ const isCallbackSet = require('./callback.js').isCallbackSet
 
 const { pg, pgExecute } = require("../src/PostgresClient");
 
-const { docs, dashboard } = require("../server.config.js");
+const { docs, dashboard, snapshotDelay } = require("../server.config.js");
 
 const {pub, sub} = require("./redis.js");
 const getDocState = require("./getDocState.js");
@@ -182,21 +182,30 @@ class WSSharedDoc extends Y.Doc {
     this.awareness.on('update', broadcastAwarenessLocal)
     this.on('update', updateHandler)
 
-    // subscribe to presence and update channel
+    // subscribe to presence and update channels
     sub.subscribe([this.name, this.presenceChannel]).then(() => {
-      sub.on('messageBuffer', (channel, update) => {
-        const docName = channel.toString();
+      // retrieve state after subscription succeeds
+      persistence.bindState(this.name, this);
+    });
 
-        if (docName === this.name) {
-          Y.applyUpdate(this, update, sub);
-          return 
-        }
+    sub.on('messageBuffer', (channel, update) => {
+      const docName = channel.toString();
 
-        if (docName === this.presenceChannel) {
-          awarenessProtocol.applyAwarenessUpdate(this.awareness, update, sub);
-        }
-      })
-    })
+      if (docName === this.name) {
+        Y.applyUpdate(this, update, sub);
+        return 
+      }
+
+      if (docName === this.presenceChannel) {
+        awarenessProtocol.applyAwarenessUpdate(this.awareness, update, sub);
+      }
+    });
+
+    // snapshots
+    this.snapshotInterval = setInterval(() => {
+      let state = Y.encodeStateAsUpdate(this);
+      storage.storeState(this.name, state);
+    }, snapshotDelay);
 
     if (isCallbackSet) {
       this.on('update', debounce(
@@ -209,11 +218,14 @@ class WSSharedDoc extends Y.Doc {
 
   async destroy() {
     const docName = this.name;
+    const presence = this.presenceChannel;
     super.destroy();
 
     await deleteRoomIp(docName);
-    sub.unsubscribe(docName);    
-    docs.delete(docName)
+    sub.unsubscribe(docName);  
+    sub.unsubscribe(presence);
+
+    docs.delete(docName);
   }
 }
 
@@ -228,8 +240,6 @@ const getYDoc = (docname, gc = true) => map.setIfUndefined(docs, docname, () => 
   doc.gc = gc 
 
   // retrieve from remote server w/ doc in memory  
-  persistence.bindState(docname, doc)
-
   docs.set(docname, doc);
   return doc;
 })
@@ -281,6 +291,9 @@ const closeConn = async(doc, conn) => {
     
     if (doc.conns.size === 0) {
       
+      // clear snapshot for doc
+      clearInterval(doc.snapshotInterval);
+
       // if persisted, we store state and destroy ydocument
       persistence.writeState(doc.name, doc).then(() => {
         doc.destroy()
