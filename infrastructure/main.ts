@@ -616,6 +616,21 @@ class SymphonyApplication extends TerraformStack {
         "iam.gke.io/gcp-service-account": `${monitoringServiceAccount.email}`,
       },
     });
+
+    cluster.exposeService({
+      name: "prometheus-ui",
+      namespace: monitoringNs.metadata.name,
+      replicas: "1",
+      containerName: "prometheus-ui",
+      containerImage: "gke.gcr.io/prometheus-engine/frontend:v0.5.0-gke.0",
+      containerPort: 9090,
+      labels: { app: "prometheus-ui" },
+      readinessPath: "/-/ready",
+      livenessPath: "/-/healthy",
+      args: ["--web.listen-address=:9090", `--query.project-id=${projectId.stringValue}`],
+      envs: [],
+      dependencies: [podMonitoringCrd, monitoringViewer],
+    });
   }
 }
 
