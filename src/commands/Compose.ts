@@ -22,7 +22,7 @@ class Compose extends Command {
 
     try {
       scaffoldProject(spinner, projectName);
-    } catch (error) {
+    } catch (error: any) {
       throw new Error(error);
     }
 

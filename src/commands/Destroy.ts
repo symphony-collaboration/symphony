@@ -1,8 +1,8 @@
-import { exec } from "../utils/helpers.js";
+import { destroyInfrastructure, exec } from "../utils/helpers.js";
 import Spinner from "../utils/spinner.js";
 import Command from "./AbstractCommand.js";
-const inquirer = require("inquirer");
-const chalk = require("chalk");
+import inquirer from "inquirer";
+import chalk from "chalk";
 
 class Destroy extends Command {
   constructor() {
@@ -39,17 +39,11 @@ class Destroy extends Command {
 
     const spinner = new Spinner();
 
-    spinner.start(`Destroying cluster for project ${projectName}`);
-
     try {
-      await exec("cdktf destroy infra && cdktf destroy production", {
-        cwd: "../",
-      });
-    } catch (error) {
-      throw new Error("Deployment could not be destroyed");
+      await destroyInfrastructure(spinner);
+    } catch (error: any) {
+      throw new Error(error);
     }
-
-    spinner.succeed("Deployment destroyed");
   }
 }
 

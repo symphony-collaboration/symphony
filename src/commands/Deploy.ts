@@ -26,7 +26,7 @@ class Deploy extends Command {
       await assertGCloudAuth(spinner);
       await provisionBaselineInfrastructure(spinner);
       await provisionApplicationInfrastructure(spinner, domainName);
-    } catch (error) {
+    } catch (error: any) {
       throw new Error(error);
     }
   }

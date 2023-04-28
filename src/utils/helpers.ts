@@ -110,6 +110,20 @@ const provisionApplicationInfrastructure = async (
   spinner.succeed("Deployment successful");
 };
 
+const destroyInfrastructure = async (spinner: Spinner) => {
+  spinner.start(`Tearing down symphony infrastructure...`);
+
+  try {
+    await exec("cdktf destroy infra && cdktf destroy production", {
+      cwd: "../",
+    });
+  } catch (error: any) {
+    throw new Error("Deployment could not be destroyed");
+  }
+
+  spinner.succeed("Deployment destroyed");
+}
+
 const scaffoldProject = (spinner: Spinner, projectName: string) => {
   spinner.start("Scaffolding symphony project...");
 
