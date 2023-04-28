@@ -16,6 +16,8 @@ import { ServiceNetworkingConnection } from "@cdktf/provider-google/lib/service-
 import { SqlDatabaseInstance } from "@cdktf/provider-google/lib/sql-database-instance";
 import { SqlDatabase } from "@cdktf/provider-google/lib/sql-database";
 import { SqlUser } from "@cdktf/provider-google/lib/sql-user";
+import { StorageBucket } from "@cdktf/provider-google/lib/storage-bucket";
+import { generateBucketName } from "./helpers/utils";
 
 class SymphonyInfrastructure extends TerraformStack {
   constructor(scope: Construct, id: string) {
@@ -321,6 +323,14 @@ class SymphonyApplication extends TerraformStack {
       instance: postgresDatabaseInstance.name,
       password: "symphony-db",
       deletionPolicy: "ABANDON",
+    });
+
+    // create storage bucket
+
+    const storageBucket = new StorageBucket(this, "document-bucket", {
+      name: generateBucketName(),
+      location: PRIMARY_REGION,
+      forceDestroy: true,
     });
   }
 }
