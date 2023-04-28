@@ -7,6 +7,8 @@ import {
   KubernetesService,
   KubernetesServiceOptions,
 } from "./kubernetes_service";
+import { HelmProvider } from "@cdktf/provider-helm/lib/provider";
+import { Release, ReleaseConfig } from "@cdktf/provider-helm/lib/release";
 
 export interface KubernetesClusterOptions {
   name: string;
@@ -47,7 +49,19 @@ export class KubernetesCluster extends Construct {
       token: auth.tokenOutput,
     });
 
+    new HelmProvider(scope, "helm", {
+      kubernetes: {
+        clusterCaCertificate: auth.clusterCaCertificateOutput,
+        host: auth.hostOutput,
+        token: auth.tokenOutput,
+      },
+    });
+
     return {
+      installHelmChart(config: ReleaseConfig) {
+        new Release(scope, config.name, config);
+      },
+
       exposeService(options: KubernetesServiceOptions) {
         return new KubernetesService(scope, options);
       },
