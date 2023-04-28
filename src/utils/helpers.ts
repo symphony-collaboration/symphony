@@ -17,7 +17,12 @@ Dependencies:
 
 */
 
-const dependencies = [
+interface Dependencies {
+  dependency: string;
+  errorMessage?: string;
+}
+
+const dependencies: Dependencies[] = [
   {
     dependency: "node",
     errorMessage:
@@ -104,15 +109,6 @@ const provisionApplicationInfrastructure = async (
 
   spinner.succeed("Deployment successful");
 };
-
-/*
-
-- create new directory
-- copy all files in template to new directory
-    - for each item in template
-        - copy file to target
-
-*/
 
 const scaffoldProject = (spinner: Spinner, projectName: string) => {
   spinner.start("Scaffolding symphony project...");

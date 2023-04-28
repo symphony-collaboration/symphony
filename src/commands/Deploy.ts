@@ -1,4 +1,6 @@
 import {
+  assertDependencies,
+  assertGCloudAuth,
   provisionApplicationInfrastructure,
   provisionBaselineInfrastructure,
 } from "../utils/helpers.js";
@@ -16,10 +18,12 @@ class Deploy extends Command {
   }
 
   public async action(...args: string[]) {
-    const [domainName] = args
+    const [domainName] = args;
     const spinner = new Spinner();
 
     try {
+      await assertDependencies(spinner);
+      await assertGCloudAuth(spinner);
       await provisionBaselineInfrastructure(spinner);
       await provisionApplicationInfrastructure(spinner, domainName);
     } catch (error) {

@@ -4,11 +4,14 @@
   "description": "symphony-cli is a tool to quickly scaffold and deploy a new Symphony project",
   "type": "module",
   "exports": "./index.js",
+  "bin": {
+    "symphony": "index.js"
+  },
   "engines": {
     "node": ">=14.16"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc"
   },
   "author": "Yusuf Birader",
   "license": "MIT",
