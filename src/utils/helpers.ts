@@ -123,32 +123,25 @@ const scaffoldProject = (spinner: Spinner, projectName: string) => {
     "../..",
     "template-vanilla"
   );
-  const templateFiles = fs.readdirSync(templateDir);
 
-  fs.mkdirSync(scaffoldDir, { recursive: true });
-
-  templateFiles.forEach((file) => {
-    copy(path.join(templateDir, file), path.join(scaffoldDir, file));
-  });
+  copyDir(templateDir, scaffoldDir);
 
   spinner.succeed("Symphony project composition successfull");
 };
 
-const copy = (srcPath: string, targetPath: string) => {
-  const stat = fs.statSync(srcPath);
-
-  if (stat.isDirectory()) {
-    copyDir(srcPath, targetPath);
-  } else {
-    fs.copyFileSync(srcPath, targetPath);
-  }
-};
-
 const copyDir = (srcPath: string, targetPath: string) => {
   fs.mkdirSync(targetPath, { recursive: true });
-
-  fs.readdirSync(srcPath).forEach((file) => {
-    copy(path.resolve(srcPath, file), path.resolve(targetPath, file));
+  fs.readdirSync(srcPath).forEach((item) => {
+    const stat = fs.statSync(path.resolve(srcPath, item));
+    if (stat.isDirectory()) {
+      fs.mkdirSync(path.resolve(targetPath, item));
+      copyDir(path.resolve(srcPath, item), path.resolve(targetPath, item));
+    } else {
+      fs.copyFileSync(
+        path.resolve(srcPath, item),
+        path.resolve(targetPath, item)
+      );
+    }
   });
 };
 
