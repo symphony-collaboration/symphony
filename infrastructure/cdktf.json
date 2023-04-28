@@ -4,7 +4,7 @@
   "projectId": "037eff2f-6c57-40cd-ad92-ba4779a13889",
   "sendCrashReports": "false",
   "terraformProviders": [],
-  "terraformModules": [],
+  "terraformModules": ["terraform-google-modules/kubernetes-engine/google//modules/auth"],
   "context": {
     "excludeStackIdFromLogicalIds": "true",
     "allowSepCharsInLogicalIds": "true"
