@@ -26,6 +26,7 @@ import { ServiceAccount } from "@cdktf/provider-google/lib/service-account";
 import KubernetesJob from "./constructs/kubernetes_job";
 import { PriorityClassV1 } from "@cdktf/provider-kubernetes/lib/priority-class-v1";
 import { DeploymentV1 } from "@cdktf/provider-kubernetes/lib/deployment-v1";
+import { Manifest } from "@cdktf/provider-kubernetes/lib/manifest";
 import { generateBucketName } from "./helpers/utils";
 
 type RoomSecrets = {
@@ -532,6 +533,87 @@ class SymphonyApplication extends TerraformStack {
             ],
           },
         },
+      },
+    });
+
+    // create resources for Prometheus monitoring
+
+    // add pod monitoring to monitored namespaces
+
+    const podMonitoringCrd = new Manifest(this, "pod-monitoring", {
+      manifest: {
+        apiVersion: "monitoring.googleapis.com/v1",
+        kind: "PodMonitoring",
+        metadata: {
+          name: "pod-monitoring",
+          namespace: roomsNs.metadata.name,
+        },
+        spec: {
+          selector: {
+            matchLabels: {
+              app: "symphony-websocket",
+            },
+          },
+          endpoints: [
+            {
+              port: "8081",
+              interval: "60s",
+              metricRelabelling: [
+                {
+                  action: "keep",
+                  regex:
+                    "kube_(daemonset|deployment|pod|namespace|node|statefulset)_.+",
+                  sourceLabels: ["__name__"],
+                },
+              ],
+            },
+          ],
+        },
+      },
+    });
+
+    // define permissions and resources to query metrics
+
+    const monitoringNs = new NamespaceV1(this, "monitoring-ns", {
+      metadata: { name: "monitoring" },
+    });
+    const k8sMonitoringServiceAccount = new DataKubernetesServiceAccount(
+      this,
+      "monitoring-sa",
+      {
+        metadata: {
+          name: "default",
+          namespace: monitoringNs.metadata.name,
+        },
+      }
+    );
+    const monitoringServiceAccount = new ServiceAccount(
+      this,
+      "monitoring-service-account",
+      {
+        displayName: "monitoring-prod",
+        accountId: "monitoring-prod",
+      }
+    );
+    const monitoringViewer = new ProjectIamMember(this, "monitoring-viewer", {
+      project: projectId.stringValue,
+      role: "roles/monitoring.viewer",
+      member: `serviceAccount:${monitoringServiceAccount.email}`,
+    });
+    new ServiceAccountIamMember(this, "k8s-monitoring-impersonation", {
+      serviceAccountId: monitoringServiceAccount.name,
+      role: "roles/iam.workloadIdentityUser",
+      member: `serviceAccount:${projectId.stringValue}.svc.id.goog[${monitoringNs.metadata.name}/${k8sMonitoringServiceAccount.metadata.name}]`,
+    });
+    new Annotations(this, "monitoring-sa-annotation", {
+      apiVersion: "v1",
+      kind: "ServiceAccount",
+      metadata: {
+        name: k8sMonitoringServiceAccount.metadata.name,
+        namespace: monitoringNs.metadata.name,
+      },
+      annotations: {
+        "iam.gke.io/gcp-service-account": `${monitoringServiceAccount.email}`,
       },
     });
   }
