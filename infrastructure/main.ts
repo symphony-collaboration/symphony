@@ -665,4 +665,5 @@ class SymphonyApplication extends TerraformStack {
 
 const app = new App();
 new SymphonyInfrastructure(app, "infrastructure");
+new SymphonyApplication(app, "production");
 app.synth();
