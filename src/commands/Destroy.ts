@@ -21,7 +21,7 @@ class Destroy extends Command {
   }
 
   public async action(...args: string[]) {
-    const projectName = args[0];
+    const [projectName] = args;
     const { shouldDelete } = await inquirer.prompt([
       {
         type: "input",

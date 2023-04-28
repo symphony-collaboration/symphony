@@ -143,14 +143,14 @@ const copyDir = (srcPath: string, targetPath: string) => {
   fs.mkdirSync(targetPath, { recursive: true });
   fs.readdirSync(srcPath).forEach((item) => {
     const stat = fs.statSync(path.resolve(srcPath, item));
+    const itemSrc = path.resolve(srcPath, item);
+    const itemTarget = path.resolve(targetPath, item);
+
     if (stat.isDirectory()) {
-      fs.mkdirSync(path.resolve(targetPath, item));
-      copyDir(path.resolve(srcPath, item), path.resolve(targetPath, item));
+      fs.mkdirSync(itemTarget);
+      copyDir(itemSrc, itemTarget);
     } else {
-      fs.copyFileSync(
-        path.resolve(srcPath, item),
-        path.resolve(targetPath, item)
-      );
+      fs.copyFileSync(itemSrc, itemTarget);
     }
   });
 };
