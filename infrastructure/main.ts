@@ -6,6 +6,8 @@ import { ProjectService } from "@cdktf/provider-google/lib/project-service";
 import { ArtifactRegistryRepository } from "@cdktf/provider-google/lib/artifact-registry-repository";
 import { KubernetesCluster } from "./constructs/kubernetes_cluster";
 import { NamespaceV1 } from "@cdktf/provider-kubernetes/lib/namespace-v1";
+import { RoleV1 } from "@cdktf/provider-kubernetes/lib/role-v1";
+import { RoleBindingV1 } from "@cdktf/provider-kubernetes/lib/role-binding-v1";
 
 class SymphonyInfrastructure extends TerraformStack {
   constructor(scope: Construct, id: string) {
@@ -103,6 +105,92 @@ class SymphonyApplication extends TerraformStack {
       metadata: { name: "dashboard" },
     });
 
+    // create roles
+
+    const serverRoomsRole = new RoleV1(this, "server-rooms-role", {
+      dependsOn: [serverNs],
+      metadata: {
+        name: "server-rooms-role",
+        namespace: roomsNs.metadata.name,
+      },
+      rule: [
+        {
+          apiGroups: [""],
+          resources: ["pods"],
+          verbs: ["get", "watch", "list"],
+        },
+        {
+          apiGroups: ["apps"],
+          resources: ["deployments"],
+          verbs: ["get", "list", "create"],
+        },
+        {
+          apiGroups: [""],
+          resources: ["services"],
+          verbs: ["get", "list", "create"],
+        },
+      ],
+    });
+    const roomsRole = new RoleV1(this, "room-role", {
+      metadata: {
+        name: "room-role",
+        namespace: roomsNs.metadata.name,
+      },
+      rule: [
+        {
+          apiGroups: ["apps"],
+          resources: ["deployments"],
+          verbs: ["get", "list", "delete"],
+        },
+        {
+          apiGroups: [""],
+          resources: ["services"],
+          verbs: ["get", "list", "delete"],
+        },
+      ],
+    });
+
+    // create role bindings
+
+    new RoleBindingV1(this, "server-rooms-role-binding", {
+      dependsOn: [serverRoomsRole],
+      metadata: {
+        name: "server-rooms-role-binding",
+        namespace: roomsNs.metadata.name,
+      },
+      subject: [
+        {
+          kind: "ServiceAccount",
+          name: "default",
+          namespace: serverNs.metadata.name,
+        },
+      ],
+      roleRef: {
+        apiGroup: "rbac.authorization.k8s.io",
+        kind: "Role",
+        name: "server-rooms-role",
+      },
+    });
+
+    new RoleBindingV1(this, "room-role-binding", {
+      dependsOn: [roomsNs, roomsRole],
+      metadata: {
+        name: "room-role-binding",
+        namespace: roomsNs.metadata.name,
+      },
+      subject: [
+        {
+          kind: "ServiceAccount",
+          name: "default",
+          namespace: roomsNs.metadata.name,
+        },
+      ],
+      roleRef: {
+        apiGroup: "rbac.authorization.k8s.io",
+        kind: "Role",
+        name: "room-role",
+      },
+    });
   }
 }
 
