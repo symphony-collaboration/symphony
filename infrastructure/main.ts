@@ -17,7 +17,14 @@ import { SqlDatabaseInstance } from "@cdktf/provider-google/lib/sql-database-ins
 import { SqlDatabase } from "@cdktf/provider-google/lib/sql-database";
 import { SqlUser } from "@cdktf/provider-google/lib/sql-user";
 import { StorageBucket } from "@cdktf/provider-google/lib/storage-bucket";
+import { SecretV1 } from "@cdktf/provider-kubernetes/lib/secret-v1";
 import { generateBucketName } from "./helpers/utils";
+
+type RoomSecrets = {
+  postgresDbUrl: string;
+  cloudStorageBucketName: string;
+  gProjectId: string;
+};
 
 class SymphonyInfrastructure extends TerraformStack {
   constructor(scope: Construct, id: string) {
@@ -331,6 +338,30 @@ class SymphonyApplication extends TerraformStack {
       name: generateBucketName(),
       location: PRIMARY_REGION,
       forceDestroy: true,
+    });
+
+    // create secret in rooms namespace
+
+    const postgresDbUrl = `postgresql://${postgresUser.name}:${postgresUser.password}@${postgresDatabaseInstance.publicIpAddress}:5432/${postgresDatabase.name}?socket=/cloudsql/${postgresDatabaseInstance.connectionName}`;
+
+    const roomSecretsData: RoomSecrets = {
+      postgresDbUrl,
+      cloudStorageBucketName: storageBucket.name,
+      gProjectId: projectId.stringValue,
+    };
+
+    const roomSecrets = new SecretV1(this, "rooms-secret", {
+      dependsOn: [
+        postgresDatabaseInstance,
+        postgresDatabase,
+        postgresUser,
+        storageBucket,
+      ],
+      metadata: {
+        name: "rooms-secret",
+        namespace: roomsNs.metadata.name,
+      },
+      data: roomSecretsData,
     });
   }
 }
