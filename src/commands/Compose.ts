@@ -21,7 +21,7 @@ class Compose extends Command {
     const spinner = new Spinner();
 
     try {
-      chalk.blue(generateAsciiLogo())
+      console.log(chalk.blue(generateAsciiLogo()))
       scaffoldProject(spinner, projectName);
     } catch (error: any) {
       throw new Error(error);
