@@ -55,6 +55,8 @@ const dependencies: Dependency[] = [
   },
 ];
 
+const RELATIVE_INFRASTRUCTURE_PATH = './infrastructure'
+
 const assertDependencies = async (spinner: Spinner) => {
   spinner.start("Checking dependencies...");
 
@@ -85,7 +87,7 @@ const provisionBaselineInfrastructure = async (spinner: Spinner) => {
   spinner.start("Provisioning symphony infrastructure...");
 
   try {
-    await exec("cdktf plan infra", { cwd: "../../" });
+    await exec("cdktf plan infra", { cwd: RELATIVE_INFRASTRUCTURE_PATH });
   } catch (error) {
     throw new Error(`Could not create cluster: ${error}`);
   }
@@ -101,7 +103,7 @@ const provisionApplicationInfrastructure = async (
 
   try {
     await exec(`cdktf plan production --var=domainName=${domainName}`, {
-      cwd: "../../",
+      cwd: RELATIVE_INFRASTRUCTURE_PATH,
     });
   } catch (error) {
     throw new Error(`Could not deploy server: ${error}`);
@@ -115,7 +117,7 @@ const destroyInfrastructure = async (spinner: Spinner) => {
 
   try {
     await exec("cdktf destroy infra && cdktf destroy production", {
-      cwd: "../",
+      cwd: RELATIVE_INFRASTRUCTURE_PATH,
     });
   } catch (error: any) {
     throw new Error("Deployment could not be destroyed");
