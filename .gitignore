@@ -1,5 +1,5 @@
 node_modules
 .env
 git.sh
-src/utils/test.ts
 dist
+src/utils/test

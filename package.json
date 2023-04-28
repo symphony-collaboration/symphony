@@ -22,8 +22,10 @@
     "ora": "^6.3.0"
   },
   "devDependencies": {
+    "@types/figlet": "^1.5.5",
     "@types/inquirer": "^9.0.3",
     "@types/node": "^18.16.1",
+    "figlet": "^1.6.0",
     "prettier": "^2.8.8",
     "typescript": "^5.0.4"
   }

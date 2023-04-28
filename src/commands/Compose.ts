@@ -1,4 +1,5 @@
-import { scaffoldProject } from "../utils/helpers.js";
+import chalk from "chalk";
+import { generateAsciiLogo, scaffoldProject } from "../utils/helpers.js";
 import Spinner from "../utils/spinner.js";
 import Command from "./AbstractCommand.js";
 
@@ -20,6 +21,7 @@ class Compose extends Command {
     const spinner = new Spinner();
 
     try {
+      chalk.blue(generateAsciiLogo())
       scaffoldProject(spinner, projectName);
     } catch (error: any) {
       throw new Error(error);

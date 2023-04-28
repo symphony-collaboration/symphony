@@ -157,6 +157,11 @@ const copyDir = (srcPath: string, targetPath: string) => {
   });
 };
 
+const generateAsciiLogo = (): string => {
+  const ascii = fs.readFileSync('./symphony-ascii.txt')
+  return ascii.toString()
+}
+
 export {
   exec,
   assertDependencies,
@@ -165,4 +170,5 @@ export {
   provisionApplicationInfrastructure,
   destroyInfrastructure,
   scaffoldProject,
+  generateAsciiLogo
 };

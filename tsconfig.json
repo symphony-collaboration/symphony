@@ -6,7 +6,11 @@
     "sourceMap": false,
     "outDir": "dist",
     "esModuleInterop": true,
-    "strict": true,
+    "strict": true
   },
-  "include": ["src/**/*"],
+  "ts-node": {
+    "esm": true,
+    "experimentalSpecifierResolution": "node"
+  },
+  "include": ["src/**/*"]
 }
