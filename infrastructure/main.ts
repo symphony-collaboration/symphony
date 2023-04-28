@@ -25,6 +25,10 @@ type RoomSecrets = {
   cloudStorageBucketName: string;
   gProjectId: string;
 };
+type DashboardSecrets = {
+  postgresDbUrl: string;
+  gProjectId: string;
+};
 
 class SymphonyInfrastructure extends TerraformStack {
   constructor(scope: Construct, id: string) {
@@ -362,6 +366,65 @@ class SymphonyApplication extends TerraformStack {
         namespace: roomsNs.metadata.name,
       },
       data: roomSecretsData,
+    });
+
+    // create dashboard ui service
+
+    const dashboardSecretsData: DashboardSecrets = {
+      postgresDbUrl,
+      gProjectId: projectId.stringValue,
+    };
+
+    const dashboardSecrets = new SecretV1(this, "dashboard-secret", {
+      dependsOn: [postgresDatabaseInstance, postgresDatabase, postgresUser],
+      metadata: {
+        name: "dashboard-secret",
+        namespace: dashboardNs.metadata.name,
+      },
+      data: dashboardSecretsData,
+    });
+
+    const dashboardEnvs = [
+      { name: "PORT", value: "8080" },
+      {
+        name: "PG_DATABASE_URL",
+        valueFrom: {
+          secretKeyRef: {
+            name: dashboardSecrets.metadata.name,
+            key: "postgresDbUrl",
+          },
+        },
+      },
+      {
+        name: "G_PROJECT_ID",
+        valueFrom: {
+          secretKeyRef: {
+            name: dashboardSecrets.metadata.name,
+            key: "gProjectId",
+          },
+        },
+      },
+    ];
+
+    cluster.exposeService({
+      name: "dashboard-ui",
+      namespace: dashboardNs.metadata.name,
+      replicas: "1",
+      containerName: "dashboard-ui",
+      containerImage: "docker.io/ybirader/dashboard-ui",
+      containerPort: 8080,
+      labels: { app: "dashboard-ui" },
+      readinessPath: "/ready",
+      livenessPath: "/health",
+      envs: dashboardEnvs,
+      args: [],
+      dependencies: [
+        dashboardNs,
+        postgresDatabase,
+        postgresDatabaseInstance,
+        postgresUser,
+        dashboardSecrets,
+      ],
     });
   }
 }
