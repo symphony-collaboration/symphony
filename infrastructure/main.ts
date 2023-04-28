@@ -9,6 +9,7 @@ import { NamespaceV1 } from "@cdktf/provider-kubernetes/lib/namespace-v1";
 import { RoleV1 } from "@cdktf/provider-kubernetes/lib/role-v1";
 import { RoleBindingV1 } from "@cdktf/provider-kubernetes/lib/role-binding-v1";
 import { ComputeGlobalAddress } from "@cdktf/provider-google/lib/compute-global-address";
+import { ComputeManagedSslCertificate } from "@cdktf/provider-google/lib/compute-managed-ssl-certificate";
 
 class SymphonyInfrastructure extends TerraformStack {
   constructor(scope: Construct, id: string) {
@@ -221,6 +222,16 @@ class SymphonyApplication extends TerraformStack {
     new TerraformOutput(this, "ip-output", {
       value: `Please point your domain (${domainName.stringValue}) A record to the IP address ${staticIp.address}`,
       description: "static IP address for external load balancer",
+    });
+
+    // create SSL cert
+
+    const sslCert = new ComputeManagedSslCertificate(this, "symphony-cert", {
+      name: "symphony-secure-cert",
+      project: projectId.stringValue,
+      managed: {
+        domains: [domainName.stringValue, `www.${domainName.stringValue}`],
+      },
     });
   }
 }
