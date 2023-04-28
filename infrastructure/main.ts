@@ -1,5 +1,13 @@
 import { Construct } from "constructs";
-import { App, TerraformOutput, TerraformStack, TerraformVariable } from "cdktf";
+import {
+  App,
+  AssetType,
+  TerraformAsset,
+  TerraformOutput,
+  TerraformStack,
+  TerraformVariable,
+  Fn,
+} from "cdktf";
 import { GoogleProvider } from "@cdktf/provider-google/lib/provider";
 import { CLUSTER_NAME, PRIMARY_REGION, SECONDARY_REGION } from "./config";
 import { ProjectService } from "@cdktf/provider-google/lib/project-service";
@@ -627,9 +635,30 @@ class SymphonyApplication extends TerraformStack {
       labels: { app: "prometheus-ui" },
       readinessPath: "/-/ready",
       livenessPath: "/-/healthy",
-      args: ["--web.listen-address=:9090", `--query.project-id=${projectId.stringValue}`],
+      args: [
+        "--web.listen-address=:9090",
+        `--query.project-id=${projectId.stringValue}`,
+      ],
       envs: [],
       dependencies: [podMonitoringCrd, monitoringViewer],
+    });
+
+    const grafanaValues = new TerraformAsset(this, "grafana-values", {
+      path: `${process.cwd()}/assets/grafana/grafana-values.yml`,
+      type: AssetType.FILE,
+    });
+
+    cluster.installHelmChart({
+      name: "grafana",
+      repository: "https://grafana.github.io/helm-charts",
+      chart: "grafana",
+      version: "6.55.1",
+      createNamespace: false,
+      namespace: monitoringNs.metadata.name,
+      forceUpdate: true,
+      dependencyUpdate: true,
+      wait: true,
+      values: [Fn.file(grafanaValues.path)],
     });
   }
 }
