@@ -191,6 +191,24 @@ class SymphonyApplication extends TerraformStack {
         name: "room-role",
       },
     });
+
+    // create web server
+
+    const webProxy = cluster.exposeService({
+      name: "symphony-proxy",
+      namespace: serverNs.metadata.name,
+      replicas: "1",
+      containerName: "symphony-proxy",
+      containerImage: "docker.io/ybirader/symphony-proxy:latest",
+      containerPort: 8081,
+      type: "NodePort",
+      labels: { app: "symphony-proxy" },
+      args: [],
+      readinessPath: "/ready",
+      livenessPath: "/health",
+      envs: [{ name: "PORT", value: 8081 }],
+      dependencies: [serverNs],
+    });
   }
 }
 
