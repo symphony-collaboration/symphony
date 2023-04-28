@@ -11,6 +11,11 @@ import { RoleBindingV1 } from "@cdktf/provider-kubernetes/lib/role-binding-v1";
 import { ComputeGlobalAddress } from "@cdktf/provider-google/lib/compute-global-address";
 import { ComputeManagedSslCertificate } from "@cdktf/provider-google/lib/compute-managed-ssl-certificate";
 import { KubernetesIngress } from "./constructs/kubernetes_ingress";
+import { DataGoogleComputeNetwork } from "@cdktf/provider-google/lib/data-google-compute-network";
+import { ServiceNetworkingConnection } from "@cdktf/provider-google/lib/service-networking-connection";
+import { SqlDatabaseInstance } from "@cdktf/provider-google/lib/sql-database-instance";
+import { SqlDatabase } from "@cdktf/provider-google/lib/sql-database";
+import { SqlUser } from "@cdktf/provider-google/lib/sql-user";
 
 class SymphonyInfrastructure extends TerraformStack {
   constructor(scope: Construct, id: string) {
@@ -248,6 +253,74 @@ class SymphonyApplication extends TerraformStack {
         "kubernetes.io/ingress.global-static-ip-name": staticIp.name,
       },
       dependencies: [],
+    });
+
+    // get vpc
+
+    const vpc = new DataGoogleComputeNetwork(this, "vpc", {
+      name: "default",
+    });
+
+    // create private service access
+
+    const privateIpAddress = new ComputeGlobalAddress(this, "private-ip", {
+      dependsOn: [vpc],
+      name: "private-ip-address",
+      purpose: "VPC_PEERING",
+      addressType: "INTERNAL",
+      prefixLength: 16,
+      network: vpc.selfLink,
+    });
+
+    const networkingConnection = new ServiceNetworkingConnection(
+      this,
+      "private-vpc-connection",
+      {
+        dependsOn: [privateIpAddress],
+        network: vpc.selfLink,
+        service: "servicenetworking.googleapis.com",
+        reservedPeeringRanges: [privateIpAddress.name],
+      }
+    );
+
+    // create CloudSQL instance
+
+    const postgresDatabaseInstance = new SqlDatabaseInstance(
+      this,
+      "postgresInstance",
+      {
+        dependsOn: [networkingConnection],
+        name: "symphony-postgres-instance",
+        databaseVersion: "POSTGRES_14",
+        region: SECONDARY_REGION,
+        settings: {
+          tier: "db-f1-micro",
+          ipConfiguration: {
+            ipv4Enabled: true,
+            privateNetwork: vpc.selfLink,
+            authorizedNetworks: [
+              {
+                name: "admin",
+                value: "0.0.0.0/0",
+              },
+            ],
+          },
+        },
+        deletionProtection: false,
+      }
+    );
+    const postgresDatabase = new SqlDatabase(this, "postgres", {
+      dependsOn: [postgresDatabaseInstance],
+      name: "symphony-postgres",
+      instance: postgresDatabaseInstance.name,
+      deletionPolicy: "ABANDON",
+    });
+    const postgresUser = new SqlUser(this, "postgres-user", {
+      dependsOn: [postgresDatabaseInstance],
+      name: "postgres-user",
+      instance: postgresDatabaseInstance.name,
+      password: "symphony-db",
+      deletionPolicy: "ABANDON",
     });
   }
 }
