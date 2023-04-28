@@ -587,7 +587,7 @@ class SymphonyApplication extends TerraformStack {
     });
     const k8sMonitoringServiceAccount = new DataKubernetesServiceAccount(
       this,
-      "monitoring-sa",
+      "monitoring-k8s-sa",
       {
         metadata: {
           name: "default",
@@ -595,14 +595,10 @@ class SymphonyApplication extends TerraformStack {
         },
       }
     );
-    const monitoringServiceAccount = new ServiceAccount(
-      this,
-      "monitoring-service-account",
-      {
-        displayName: "monitoring-prod",
-        accountId: "monitoring-prod",
-      }
-    );
+    const monitoringServiceAccount = new ServiceAccount(this, "monitoring-sa", {
+      displayName: "monitoring-sa",
+      accountId: "monitoring-sa",
+    });
     const monitoringViewer = new ProjectIamMember(this, "monitoring-viewer", {
       project: projectId.stringValue,
       role: "roles/monitoring.viewer",
