@@ -1,5 +1,5 @@
 import { Construct } from "constructs";
-import { App, TerraformStack, TerraformVariable } from "cdktf";
+import { App, TerraformOutput, TerraformStack, TerraformVariable } from "cdktf";
 import { GoogleProvider } from "@cdktf/provider-google/lib/provider";
 import { CLUSTER_NAME, PRIMARY_REGION, SECONDARY_REGION } from "./config";
 import { ProjectService } from "@cdktf/provider-google/lib/project-service";
@@ -216,6 +216,11 @@ class SymphonyApplication extends TerraformStack {
     const staticIp = new ComputeGlobalAddress(this, "symphony-ip", {
       name: "symphony-secure-ip",
       project: projectId.stringValue,
+    });
+
+    new TerraformOutput(this, "ip-output", {
+      value: `Please point your domain (${domainName.stringValue}) A record to the IP address ${staticIp.address}`,
+      description: "static IP address for external load balancer",
     });
   }
 }
