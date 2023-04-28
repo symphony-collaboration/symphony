@@ -17,12 +17,12 @@ Dependencies:
 
 */
 
-interface Dependencies {
+interface Dependency {
   dependency: string;
   errorMessage?: string;
 }
 
-const dependencies: Dependencies[] = [
+const dependencies: Dependency[] = [
   {
     dependency: "node",
     errorMessage:
@@ -122,7 +122,7 @@ const destroyInfrastructure = async (spinner: Spinner) => {
   }
 
   spinner.succeed("Deployment destroyed");
-}
+};
 
 const scaffoldProject = (spinner: Spinner, projectName: string) => {
   spinner.start("Scaffolding symphony project...");

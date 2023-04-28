@@ -5,7 +5,7 @@ class Dashboard extends Command {
   constructor() {
     super(
       "dashboard",
-      "Exposes the development on localhost",
+      "Exposes the development dashboard on localhost",
       [],
       [
         [
@@ -23,7 +23,7 @@ class Dashboard extends Command {
     console.log(`Exposing dashboard on localhost:${port}...`);
 
     exec(
-      `kubectl port-forward svc/dashboard -n dashboard ${port}:8080`
+      `kubectl port-forward svc/dashboard-ui -n dashboard ${port}:8080`
     ).catch((error) => {
       throw new Error(`Dashboard could not be exposed: ${error}`);
     });

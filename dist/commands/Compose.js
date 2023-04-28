@@ -5,11 +5,10 @@ class Compose extends Command {
     constructor() {
         super("compose", "Creates a new symphony project", [
             ["<project name>", "project name"],
-            ["<domain>", "domain name"],
         ], [["--template", "use a pre-defined template", "javascript"]]);
     }
     async action(...args) {
-        const [projectName, domainName, template] = args;
+        const [projectName, template] = args;
         const spinner = new Spinner();
         try {
             scaffoldProject(spinner, projectName);

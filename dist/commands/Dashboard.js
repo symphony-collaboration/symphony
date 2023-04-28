@@ -2,7 +2,7 @@ import { exec } from "../utils/helpers.js";
 import Command from "./AbstractCommand.js";
 class Dashboard extends Command {
     constructor() {
-        super("dashboard", "Exposes the development on localhost", [], [
+        super("dashboard", "Exposes the development dashboard on localhost", [], [
             [
                 "-p, --port <PORT>",
                 "specify the localhost port to view the dashboard",
@@ -13,7 +13,7 @@ class Dashboard extends Command {
     async action(...args) {
         const port = args[0];
         console.log(`Exposing dashboard on localhost:${port}...`);
-        exec(`kubectl port-forward svc/dashboard -n dashboard ${port}:8080`).catch((error) => {
+        exec(`kubectl port-forward svc/dashboard-ui -n dashboard ${port}:8080`).catch((error) => {
             throw new Error(`Dashboard could not be exposed: ${error}`);
         });
     }
