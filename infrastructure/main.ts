@@ -8,6 +8,7 @@ import { KubernetesCluster } from "./constructs/kubernetes_cluster";
 import { NamespaceV1 } from "@cdktf/provider-kubernetes/lib/namespace-v1";
 import { RoleV1 } from "@cdktf/provider-kubernetes/lib/role-v1";
 import { RoleBindingV1 } from "@cdktf/provider-kubernetes/lib/role-binding-v1";
+import { ComputeGlobalAddress } from "@cdktf/provider-google/lib/compute-global-address";
 
 class SymphonyInfrastructure extends TerraformStack {
   constructor(scope: Construct, id: string) {
@@ -208,6 +209,13 @@ class SymphonyApplication extends TerraformStack {
       livenessPath: "/health",
       envs: [{ name: "PORT", value: 8081 }],
       dependencies: [serverNs],
+    });
+
+    // create static IP
+
+    const staticIp = new ComputeGlobalAddress(this, "symphony-ip", {
+      name: "symphony-secure-ip",
+      project: projectId.stringValue,
     });
   }
 }
