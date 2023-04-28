@@ -10,6 +10,7 @@ import { RoleV1 } from "@cdktf/provider-kubernetes/lib/role-v1";
 import { RoleBindingV1 } from "@cdktf/provider-kubernetes/lib/role-binding-v1";
 import { ComputeGlobalAddress } from "@cdktf/provider-google/lib/compute-global-address";
 import { ComputeManagedSslCertificate } from "@cdktf/provider-google/lib/compute-managed-ssl-certificate";
+import { KubernetesIngress } from "./constructs/kubernetes_ingress";
 
 class SymphonyInfrastructure extends TerraformStack {
   constructor(scope: Construct, id: string) {
@@ -232,6 +233,21 @@ class SymphonyApplication extends TerraformStack {
       managed: {
         domains: [domainName.stringValue, `www.${domainName.stringValue}`],
       },
+    });
+
+    // create ingress with external HTTP(S) load balancer
+
+    new KubernetesIngress(this, {
+      name: "symphony-ingress",
+      namespace: serverNs.metadata.name,
+      labels: { name: "symphony-ingress" },
+      host: domainName.stringValue,
+      annotations: {
+        "kubernetes.io/ingress.class": "gce",
+        "ingress.gcp.kubernetes.io/pre-shared-cert": sslCert.name,
+        "kubernetes.io/ingress.global-static-ip-name": staticIp.name,
+      },
+      dependencies: [],
     });
   }
 }
