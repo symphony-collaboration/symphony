@@ -4,6 +4,7 @@ import { GoogleProvider } from "@cdktf/provider-google/lib/provider";
 import { CLUSTER_NAME, PRIMARY_REGION, SECONDARY_REGION } from "./config";
 import { ProjectService } from "@cdktf/provider-google/lib/project-service";
 import { ArtifactRegistryRepository } from "@cdktf/provider-google/lib/artifact-registry-repository";
+import { KubernetesCluster } from "./constructs/kubernetes_cluster";
 
 class SymphonyInfrastructure extends TerraformStack {
   constructor(scope: Construct, id: string) {
@@ -51,7 +52,11 @@ class SymphonyInfrastructure extends TerraformStack {
       format: "DOCKER",
     });
 
-
+    new KubernetesCluster(this, {
+      name: CLUSTER_NAME,
+      region: "europe-west2",
+      project: projectId.stringValue,
+    });
   }
 }
 
