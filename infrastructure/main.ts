@@ -24,6 +24,8 @@ import { Annotations } from "@cdktf/provider-kubernetes/lib/annotations";
 import { ServiceAccountIamMember } from "@cdktf/provider-google/lib/service-account-iam-member";
 import { ServiceAccount } from "@cdktf/provider-google/lib/service-account";
 import KubernetesJob from "./constructs/kubernetes_job";
+import { PriorityClassV1 } from "@cdktf/provider-kubernetes/lib/priority-class-v1";
+import { DeploymentV1 } from "@cdktf/provider-kubernetes/lib/deployment-v1";
 import { generateBucketName } from "./helpers/utils";
 
 type RoomSecrets = {
@@ -480,6 +482,57 @@ class SymphonyApplication extends TerraformStack {
       command: ["npm", "run", "init"],
       envs: [{ name: "PG_DATABASE_URL", value: postgresDbUrl }],
       dependencies: [postgresDatabaseInstance, postgresDatabase, postgresUser],
+    });
+
+    // balloon pod
+
+    const balloonPriority = new PriorityClassV1(this, "balloon-priority", {
+      metadata: {
+        name: "balloon-priority",
+      },
+      value: -10,
+      preemptionPolicy: "Never",
+      globalDefault: false,
+      description: "Balloon pod priority",
+    });
+
+    new DeploymentV1(this, "balloon-deployment", {
+      metadata: {
+        name: "balloon-deployment",
+      },
+      spec: {
+        replicas: "3",
+        selector: {
+          matchLabels: {
+            app: "balloon",
+          },
+        },
+        template: {
+          metadata: {
+            labels: {
+              app: "balloon",
+            },
+          },
+          spec: {
+            priorityClassName: balloonPriority.metadata.name,
+            terminationGracePeriodSeconds: 0,
+            container: [
+              {
+                name: "ubuntu",
+                image: "ubuntu",
+                command: ["sleep"],
+                args: ["infinity"],
+                resources: {
+                  requests: {
+                    cpu: "200m",
+                    memory: "250Mi",
+                  },
+                },
+              },
+            ],
+          },
+        },
+      },
     });
   }
 }
