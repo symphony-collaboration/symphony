@@ -363,7 +363,7 @@ class SymphonyApplication extends TerraformStack {
 
     // create secret in rooms namespace
 
-    const postgresDbUrl = `postgresql://${postgresUser.name}:${postgresUser.password}@${postgresDatabaseInstance.publicIpAddress}:5432/${postgresDatabase.name}?socket=/cloudsql/${postgresDatabaseInstance.connectionName}`;
+    const postgresDbUrl = `postgresql://${postgresUser.name}:${postgresUser.password}@${postgresDatabaseInstance.privateIpAddress}:5432/${postgresDatabase.name}?socket=/cloudsql/${postgresDatabaseInstance.connectionName}`;
 
     const roomSecretsData: RoomSecrets = {
       postgresDbUrl,
