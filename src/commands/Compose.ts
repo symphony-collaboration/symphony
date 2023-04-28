@@ -9,14 +9,13 @@ class Compose extends Command {
       "Creates a new symphony project",
       [
         ["<project name>", "project name"],
-        ["<domain>", "domain name"],
       ],
       [["--template", "use a pre-defined template", "javascript"]]
     );
   }
 
   public async action(...args: string[]) {
-    const [projectName, domainName, template] = args;
+    const [projectName, template] = args;
 
     const spinner = new Spinner();
 
