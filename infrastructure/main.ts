@@ -23,6 +23,7 @@ import { DataKubernetesServiceAccount } from "@cdktf/provider-kubernetes/lib/dat
 import { Annotations } from "@cdktf/provider-kubernetes/lib/annotations";
 import { ServiceAccountIamMember } from "@cdktf/provider-google/lib/service-account-iam-member";
 import { ServiceAccount } from "@cdktf/provider-google/lib/service-account";
+import KubernetesJob from "./constructs/kubernetes_job";
 import { generateBucketName } from "./helpers/utils";
 
 type RoomSecrets = {
@@ -469,6 +470,16 @@ class SymphonyApplication extends TerraformStack {
       annotations: {
         "iam.gke.io/gcp-service-account": `${roomsServiceAccount.email}`,
       },
+    });
+
+    // create k8 job to initalize db schema
+
+    new KubernetesJob(this, {
+      name: "db-init",
+      imageName: "docker.io/ybirader/db-init:latest",
+      command: ["npm", "run", "init"],
+      envs: [{ name: "PG_DATABASE_URL", value: postgresDbUrl }],
+      dependencies: [postgresDatabaseInstance, postgresDatabase, postgresUser],
     });
   }
 }
