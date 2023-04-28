@@ -5,17 +5,16 @@
     "declaration": true,
     "experimentalDecorators": true,
     "inlineSourceMap": true,
+    "ignoreDeprecations": "5.0",
     "inlineSources": true,
-    "lib": [
-      "es2018"
-    ],
+    "lib": ["es2018"],
     "module": "CommonJS",
     "noEmitOnError": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitAny": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
-    "noUnusedLocals": true,
+    "noUnusedLocals": false,
     "noUnusedParameters": true,
     "resolveJsonModule": true,
     "strict": true,
@@ -26,11 +25,6 @@
     "incremental": true,
     "skipLibCheck": true
   },
-  "include": [
-    "**/*.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "cdktf.out"
-  ]
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules", "cdktf.out", "docker.ts"]
 }

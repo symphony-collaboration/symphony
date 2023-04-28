@@ -20,7 +20,10 @@
     "node": ">=14.0"
   },
   "dependencies": {
-    "cdktf": "^0.15.5",
+    "@cdktf/provider-google": "^7.0.3",
+    "@cdktf/provider-helm": "^6.0.0",
+    "@cdktf/provider-kubernetes": "^6.0.1",
+    "cdktf": "^0.16.0",
     "constructs": "^10.2.9"
   },
   "devDependencies": {
