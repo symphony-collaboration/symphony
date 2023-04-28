@@ -67,6 +67,18 @@ const provisionApplicationInfrastructure = async (spinner, domainName) => {
     }
     spinner.succeed("Deployment successful");
 };
+const destroyInfrastructure = async (spinner) => {
+    spinner.start(`Tearing down symphony infrastructure...`);
+    try {
+        await exec("cdktf destroy infra && cdktf destroy production", {
+            cwd: "../",
+        });
+    }
+    catch (error) {
+        throw new Error("Deployment could not be destroyed");
+    }
+    spinner.succeed("Deployment destroyed");
+};
 const scaffoldProject = (spinner, projectName) => {
     spinner.start("Scaffolding symphony project...");
     const scaffoldDir = path.join(process.cwd(), projectName);
@@ -87,4 +99,4 @@ const copyDir = (srcPath, targetPath) => {
         }
     });
 };
-export { exec, assertDependencies, assertGCloudAuth, provisionBaselineInfrastructure, provisionApplicationInfrastructure, scaffoldProject, };
+export { exec, assertDependencies, assertGCloudAuth, provisionBaselineInfrastructure, provisionApplicationInfrastructure, destroyInfrastructure, scaffoldProject, };

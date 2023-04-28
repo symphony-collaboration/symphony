@@ -1,4 +1,4 @@
-import { destroyInfrastructure, exec } from "../utils/helpers.js";
+import { destroyInfrastructure } from "../utils/helpers.js";
 import Spinner from "../utils/spinner.js";
 import Command from "./AbstractCommand.js";
 import inquirer from "inquirer";

@@ -161,5 +161,6 @@ export {
   assertGCloudAuth,
   provisionBaselineInfrastructure,
   provisionApplicationInfrastructure,
+  destroyInfrastructure,
   scaffoldProject,
 };

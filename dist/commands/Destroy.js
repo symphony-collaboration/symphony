@@ -1,4 +1,4 @@
-import { exec } from "../utils/helpers.js";
+import { destroyInfrastructure } from "../utils/helpers.js";
 import Spinner from "../utils/spinner.js";
 import Command from "./AbstractCommand.js";
 import inquirer from "inquirer";
@@ -27,16 +27,12 @@ class Destroy extends Command {
             return;
         }
         const spinner = new Spinner();
-        spinner.start(`Destroying cluster for project ${projectName}`);
         try {
-            await exec("cdktf destroy infra && cdktf destroy production", {
-                cwd: "../",
-            });
+            await destroyInfrastructure(spinner);
         }
         catch (error) {
-            throw new Error("Deployment could not be destroyed");
+            throw new Error(error);
         }
-        spinner.succeed("Deployment destroyed");
     }
 }
 export default Destroy;
