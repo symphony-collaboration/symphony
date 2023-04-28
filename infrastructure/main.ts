@@ -18,6 +18,11 @@ import { SqlDatabase } from "@cdktf/provider-google/lib/sql-database";
 import { SqlUser } from "@cdktf/provider-google/lib/sql-user";
 import { StorageBucket } from "@cdktf/provider-google/lib/storage-bucket";
 import { SecretV1 } from "@cdktf/provider-kubernetes/lib/secret-v1";
+import { ProjectIamMember } from "@cdktf/provider-google/lib/project-iam-member";
+import { DataKubernetesServiceAccount } from "@cdktf/provider-kubernetes/lib/data-kubernetes-service-account";
+import { Annotations } from "@cdktf/provider-kubernetes/lib/annotations";
+import { ServiceAccountIamMember } from "@cdktf/provider-google/lib/service-account-iam-member";
+import { ServiceAccount } from "@cdktf/provider-google/lib/service-account";
 import { generateBucketName } from "./helpers/utils";
 
 type RoomSecrets = {
@@ -425,6 +430,45 @@ class SymphonyApplication extends TerraformStack {
         postgresUser,
         dashboardSecrets,
       ],
+    });
+
+    // configure workload identity for rooms
+
+    const roomsServiceAccount = new ServiceAccount(this, "rooms-sa", {
+      displayName: "rooms-sa",
+      accountId: "rooms-sa",
+    });
+    new ProjectIamMember(this, "storage-admin", {
+      project: projectId.stringValue,
+      role: "roles/storage.admin",
+      member: `serviceAccount:${roomsServiceAccount.email}`,
+    });
+
+    const k8sRoomServiceAccount = new DataKubernetesServiceAccount(
+      this,
+      "rooms-k8s-sa",
+      {
+        metadata: {
+          name: "default",
+          namespace: roomsNs.metadata.name,
+        },
+      }
+    );
+    new ServiceAccountIamMember(this, "k8-rooms-impersonation", {
+      serviceAccountId: roomsServiceAccount.name,
+      role: "roles/iam.workloadIdentityUser",
+      member: `serviceAccount:${projectId.stringValue}.svc.id.goog[${roomsNs.metadata.name}/${k8sRoomServiceAccount.metadata.name}]`,
+    });
+    new Annotations(this, "rooms-sa-annotation", {
+      apiVersion: "v1",
+      kind: "ServiceAccount",
+      metadata: {
+        name: k8sRoomServiceAccount.metadata.name,
+        namespace: roomsNs.metadata.name,
+      },
+      annotations: {
+        "iam.gke.io/gcp-service-account": `${roomsServiceAccount.email}`,
+      },
     });
   }
 }
