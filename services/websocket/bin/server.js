@@ -17,7 +17,45 @@ const cors = require("cors");
 let Persistence = require("../src/Persistence.js");
 const storage = new Persistence();
 const blocked = require("blocked-at");
+const promClient = require("prom-client");
 
+// PROMETHEUS
+
+const register = new promClient.Registry();
+register.setDefaultLabels({
+  roomId: process.env.ROOM_ID,
+});
+promClient.collectDefaultMetrics({ register });
+
+const connectedClients = new promClient.Gauge({
+  name: "number_of_connected_clients",
+  help: "Number of connected clients",
+  collect() {
+    this.set(wss.clients.size);
+  },
+});
+register.registerMetric(connectedClients);
+
+// STACK INSPECTION
+
+// blocked((time, stack) => {
+//   console.log(`Blocked for ${time}ms, operation started here:`, stack)
+// })
+
+app.get("/", (request, response) =>
+  response.status(200).send(`Room with id ${process.env.ROOM_ID} is online`)
+);
+app.get("/ready", (request, response) => {
+  return response.status(200).end()
+})
+app.get("/health", (request, response) => {
+  return response.status(200).end()
+})
+
+app.get("/metrics", async (request, response) => {
+  response.setHeader("Content-Type", register.contentType);
+  return response.end(await register.metrics());
+});
 
 app.use(cors());
 app.use(express.json());
