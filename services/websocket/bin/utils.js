@@ -55,7 +55,17 @@ let persistence = {
 
     await saveState();
 
+    // enable snapshotting
 
+    const snapshottingEnabled = process.env.SNAPSHOTTING_ENABLED || false;
+    const snapshotInterval = process.env.SNAPSHOT_INTERVAL || 30000;
+
+    if (snapshottingEnabled) {
+      setInterval(() => {
+        console.log("Snapshotting...");
+        saveState();
+      }, snapshotInterval);
+    }
   },
   writeState: async (docName, ydoc) => {
     let state = Y.encodeStateAsUpdate(ydoc);
@@ -88,7 +98,7 @@ const docs = new Map();
 
 const idlePeriod = process.env.IDLE_PERIOD || 30000;
 const pollIfIdle = setInterval(() => {
-  console.log('checking connection count...');
+  console.log("checking connection count...");
   if (docs.size === 0) {
     k8sClient.closeRoom();
     clearInterval(pollIfIdle);
