@@ -84,7 +84,16 @@ exports.getPersistence = () => persistence;
  */
 const docs = new Map();
 
+// close room if docs remains empty for set period
 
+const idlePeriod = process.env.IDLE_PERIOD || 30000;
+const pollIfIdle = setInterval(() => {
+  console.log('checking connection count...');
+  if (docs.size === 0) {
+    k8sClient.closeRoom();
+    clearInterval(pollIfIdle);
+  }
+}, idlePeriod);
 
 // exporting docs so that others can use it
 exports.docs = docs;
