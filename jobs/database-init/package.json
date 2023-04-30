@@ -4,11 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "init": "npx prisma migrate deploy"
+    "init": "npx prisma migrate deploy",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "Yusuf Birader",
-  "license": "MIT",
+  "author": "",
+  "license": "ISC",
   "devDependencies": {
     "@types/node": "^18.15.11",
     "prisma": "^4.12.0",
