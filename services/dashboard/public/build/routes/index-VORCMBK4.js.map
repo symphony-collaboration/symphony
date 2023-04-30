@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../app/routes/index.tsx"],
+  "sourcesContent": ["import { redirect } from \"@remix-run/node\";\nimport type { LoaderFunction } from \"@remix-run/node\";\n\nexport const loader: LoaderFunction = async () => {\n  return redirect(\"/dashboard\")\n};\n\nconst index = () => {\n}\n\nexport default index\n"],
+  "mappings": ";;;AAOA,IAAM,QAAQ,MAAM;AACpB;AAEA,IAAO,iBAAQ;",
+  "names": []
+}

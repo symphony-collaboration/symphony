@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../app/routes/$.tsx"],
+  "sourcesContent": ["export default function NotFound() {\n  return (\n    <div className=\"grid h-screen px-4 bg-white place-content-center\">\n      <div className=\"text-center\">\n        <h1 className=\"font-black text-gray-200 text-9xl\">404</h1>\n\n        <p className=\"text-2xl font-bold tracking-tight text-gray-900 sm:text-4xl\">\n          Uh-oh!\n        </p>\n\n        <p className=\"mt-4 text-gray-500\">We can't find that page.</p>\n\n        <a\n          href=\"/dashboard\"\n          className=\"inline-block px-5 py-3 mt-6 text-sm font-medium text-white bg-indigo-600 rounded hover:bg-indigo-700 focus:outline-none focus:ring\"\n        >\n          Back to Dashboard\n        </a>\n      </div>\n    </div>\n  );\n}\n"],
+  "mappings": ";;;;;;;;AAIQ;AAJO,SAAR,WAA4B;AACjC,SACE,mDAAC,SAAI,WAAU,oDACb,6DAAC,SAAI,WAAU,eACb;AAAA,uDAAC,QAAG,WAAU,qCAAoC,mBAAlD;AAAA;AAAA;AAAA;AAAA,WAAqD;AAAA,IAErD,mDAAC,OAAE,WAAU,+DAA8D,sBAA3E;AAAA;AAAA;AAAA;AAAA,WAEA;AAAA,IAEA,mDAAC,OAAE,WAAU,sBAAqB,wCAAlC;AAAA;AAAA;AAAA;AAAA,WAA0D;AAAA,IAE1D;AAAA,MAAC;AAAA;AAAA,QACC,MAAK;AAAA,QACL,WAAU;AAAA,QACX;AAAA;AAAA,MAHD;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,IAKA;AAAA,OAdF;AAAA;AAAA;AAAA;AAAA,SAeA,KAhBF;AAAA;AAAA;AAAA;AAAA,SAiBA;AAEJ;",
+  "names": []
+}
