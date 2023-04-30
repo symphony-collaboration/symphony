@@ -15,7 +15,6 @@ const isCallbackSet = require("./callback.js").isCallbackSet;
 const axios = require("axios");
 const eventURL = `http://${process.env.HOST}:${process.env.PORT}/api/events`;
 const k8sClient = require("./k8s.js");
-const messageQueue = require("./message_queue.js");
 
 const CALLBACK_DEBOUNCE_WAIT =
   parseInt(process.env.CALLBACK_DEBOUNCE_WAIT) || 2000;
@@ -273,13 +272,6 @@ const closeConn = (doc, conn) => {
   // send event to update connections tally for room
   // axios.post(eventURL, { room: doc.name, add: -1 });
 
-  // send connection event to pub sub topic
-
-  messageQueue.publish(process.env.G_PUB_SUB_CONNECTIONS_TOPIC_NAME, {
-    roomId: doc.name,
-    connections: doc.conns.size,
-  });
-
   conn.close();
 };
 
@@ -330,13 +322,6 @@ exports.setupWSConnection = (
 
   // send event to update connections tally for room
   // axios.post(eventURL, { room: docName, add: 1 });
-
-  // send connection event to pub sub topic
-
-  messageQueue.publish(process.env.G_PUB_SUB_CONNECTIONS_TOPIC_NAME, {
-    roomId: docName,
-    connections: doc.conns.size,
-  });
 
   // listen and reply to events
   conn.on(
