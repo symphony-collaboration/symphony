@@ -11,9 +11,6 @@ const debounce = require("lodash.debounce");
 const callbackHandler = require("./callback.js").callbackHandler;
 const isCallbackSet = require("./callback.js").isCallbackSet;
 
-// const mongoClient = require("../src/MongoClient");
-const axios = require("axios");
-const eventURL = `http://${process.env.HOST}:${process.env.PORT}/api/events`;
 const k8sClient = require("./k8s.js");
 
 const CALLBACK_DEBOUNCE_WAIT =
@@ -315,13 +312,6 @@ exports.setupWSConnection = (
   // get doc, initialize if it does not exist yet
   const doc = getYDoc(docName, gc);
   doc.conns.set(conn, new Set());
-
-  // log connection
-  // mongoClient.logConnection(docName);
-  // storage.registerConnection(docName);
-
-  // send event to update connections tally for room
-  // axios.post(eventURL, { room: docName, add: 1 });
 
   // listen and reply to events
   conn.on(
