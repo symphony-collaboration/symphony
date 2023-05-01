@@ -1,0 +1,32 @@
+{
+  "name": "symphony-cli",
+  "version": "1.0.0",
+  "description": "symphony-cli is a tool to quickly scaffold and deploy a new Symphony project",
+  "type": "module",
+  "exports": "./index.js",
+  "bin": {
+    "symphony": "index.js"
+  },
+  "engines": {
+    "node": ">=14.16"
+  },
+  "scripts": {
+    "build": "tsc"
+  },
+  "author": "Yusuf Birader",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^5.2.0",
+    "commander": "^10.0.1",
+    "inquirer": "^9.2.0",
+    "ora": "^6.3.0"
+  },
+  "devDependencies": {
+    "@types/figlet": "^1.5.5",
+    "@types/inquirer": "^9.0.3",
+    "@types/node": "^18.16.1",
+    "figlet": "^1.6.0",
+    "prettier": "^2.8.8",
+    "typescript": "^5.0.4"
+  }
+}

@@ -1,0 +1,7 @@
+node_modules
+npm-debug.log
+notes.md
+.env
+./src/testing
+./src/deprecated
+scripts
