@@ -23,25 +23,23 @@ A single default Virtual Private Cloud (VPC)
 
 A Kubernetes cluster deployed on Google Kubernetes Engine (GKE), running on Autopilot mode.
 
-The following services are deployed on the K8s cluster in their respective namespace:
+The following services are deployed on the K8s cluster in their respective namespaces:
 
-### Server Namespace
+### Symphony Proxy (server namespace)
 
-- Symphony Proxy
+A websocket proxy that orchestrates room creation and proxies client websocket requests to the correct room service.
 
-A websocket proxy that orchestrates room creation and proxies client websocket connections to the correct room service.
+### Symphony WebSocket Server (rooms namespace)
 
-### Rooms Namespace
+A websocket server (room), which collaborating clients connect to. Each room holds the state of a single document in memory.
 
-- Symphony Room websocket server
-
-### Dashboard Namespace
-
-- Symphony Developer Dashboard
+### Symphony Developer Dashboard (dashboard namespace)
 
 A developer dashboard UI that provides metrics, allowing developers to easily monitor the state of the system.
 
-### Monitoring Namespace
+### Monitoring Services (monitoring namespace)
+
+Services which are used to ingest and visualise metrics from the Prometheus cluster.
 
 - Prometheus UI
 - Grafana
@@ -65,6 +63,6 @@ A Google Cloud Storage bucket that is used to persist room state.
 
 ## Prometheus Cluster
 
-A monitoring service that is used to scrape metrics from active rooms.
+A monitoring service that is used to scrape and aggregate metrics from active rooms.
 
 
