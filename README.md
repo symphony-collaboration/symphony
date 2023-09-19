@@ -1,6 +1,5 @@
-<video width="320" height="240" autoplay loop>
-  <source src="./assets/symphony.mp4" type="video/mp4">
-</video>
+![symphony](https://github.com/symphony-collaboration/symphony/assets/68111562/f37a0442-ea1d-475a-ba80-970bbde72197)
+
 
 ## Overview
 
