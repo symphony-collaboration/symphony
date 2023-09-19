@@ -1,4 +1,6 @@
-<TODO: Add Symphony Logo>
+<video width="320" height="240" autoplay loop>
+  <source src="./assets/symphony.mp4" type="video/mp4">
+</video>
 
 ## Overview
 
